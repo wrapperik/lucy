@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Play, Pause, VolumeX, Volume2, Clock, QrCode, Camera } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Play, Pause, VolumeX, Volume2 } from 'lucide-react';
+import EntryHeader from './diary/EntryHeader';
+import EntryLocked from './diary/EntryLocked';
+import EntryQuote from './diary/EntryQuote';
 
 export default function DiaryEntry({ entry, index }) {
   const { isEntryUnlocked, unlockEntry, getTimeRemaining } = useApp();
-  const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -36,15 +37,6 @@ export default function DiaryEntry({ entry, index }) {
     return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
   };
 
-  const getLockIcon = () => {
-    switch (entry.lockType) {
-      case 'time': return <Clock size={28} style={{ color: 'var(--accent)' }} />;
-      case 'qr': return <QrCode size={28} style={{ color: 'var(--accent)' }} />;
-      case 'camera': return <Camera size={28} style={{ color: 'var(--accent)' }} />;
-      default: return null;
-    }
-  };
-
   return (
     <div
       className="mx-5 rounded-[20px] overflow-hidden animate-fade-in-up"
@@ -56,46 +48,7 @@ export default function DiaryEntry({ entry, index }) {
         animationFillMode: 'backwards',
       }}
     >
-      {/* Entry header */}
-      <div style={{ padding: '22px 22px 12px' }}>
-        <div className="flex items-center justify-between" style={{ marginBottom: '8px' }}>
-          <span
-            style={{
-              fontSize: '10px',
-              fontWeight: 700,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--accent)',
-              fontFamily: "'Space Mono', monospace",
-            }}
-          >
-            DAY {entry.day}
-          </span>
-          <span
-            style={{
-              fontSize: '11px',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              color: 'var(--accent)',
-              fontFamily: "'Space Mono', monospace",
-              background: 'var(--accent-glow)',
-            }}
-          >
-            {entry.duration}
-          </span>
-        </div>
-        <h2
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            color: 'var(--text-primary)',
-            fontSize: '24px',
-            fontWeight: 700,
-            lineHeight: 1.2,
-          }}
-        >
-          {entry.title}
-        </h2>
-      </div>
+      <EntryHeader day={entry.day} duration={entry.duration} title={entry.title} />
 
       {/* Video / Lock area */}
       <div style={{ padding: '0 22px 8px' }}>
@@ -132,12 +85,7 @@ export default function DiaryEntry({ entry, index }) {
                       border: '2px solid rgba(255,255,255,0.30)',
                     }}
                   >
-                    <Play
-                      size={22}
-                      fill="white"
-                      className="text-white"
-                      style={{ marginLeft: '2px' }}
-                    />
+                    <Play size={22} fill="white" className="text-white" style={{ marginLeft: '2px' }} />
                   </div>
                 )}
               </button>
@@ -146,30 +94,16 @@ export default function DiaryEntry({ entry, index }) {
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
                   className="flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
-                  style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.50)',
-                  }}
+                  style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(0,0,0,0.50)' }}
                   aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
-                  {isMuted ? (
-                    <VolumeX size={15} className="text-white" />
-                  ) : (
-                    <Volume2 size={15} className="text-white" />
-                  )}
+                  {isMuted ? <VolumeX size={15} className="text-white" /> : <Volume2 size={15} className="text-white" />}
                 </button>
                 {isPlaying && (
                   <button
                     onClick={(e) => { e.stopPropagation(); setIsPlaying(false); }}
                     className="flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
-                    style={{
-                      width: '34px',
-                      height: '34px',
-                      borderRadius: '50%',
-                      background: 'rgba(0,0,0,0.50)',
-                    }}
+                    style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(0,0,0,0.50)' }}
                     aria-label="Pause"
                   >
                     <Pause size={15} className="text-white" />
@@ -178,109 +112,12 @@ export default function DiaryEntry({ entry, index }) {
               </div>
             </>
           ) : (
-            /* Locked state */
-            <div
-              className="flex flex-col items-center justify-center h-full text-center"
-              style={{ padding: '32px 24px' }}
-            >
-              <div
-                className="flex items-center justify-center animate-float"
-                style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '50%',
-                  background: 'var(--accent-glow)',
-                  marginBottom: '16px',
-                }}
-              >
-                {getLockIcon()}
-              </div>
-              <p
-                style={{
-                  fontSize: '16px',
-                  fontWeight: 500,
-                  lineHeight: 1.45,
-                  color: 'var(--text-primary)',
-                  maxWidth: '280px',
-                }}
-              >
-                {entry.lockMessage}
-              </p>
-              {entry.lockType === 'time' && timeLeft !== null && (
-                <p
-                  style={{
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    marginTop: '12px',
-                    color: 'var(--accent)',
-                    fontFamily: "'Space Mono', monospace",
-                  }}
-                >
-                  Unlocks in {formatTime(timeLeft)}
-                </p>
-              )}
-              {entry.lockType === 'qr' && (
-                <button
-                  onClick={() => navigate('/scan')}
-                  className="flex items-center font-semibold transition-transform active:scale-95"
-                  style={{
-                    gap: '8px',
-                    marginTop: '16px',
-                    padding: '10px 22px',
-                    borderRadius: '999px',
-                    fontSize: '13px',
-                    background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
-                    color: 'white',
-                    border: 'none',
-                    boxShadow: '0 4px 16px rgba(200, 149, 108, 0.2)',
-                  }}
-                >
-                  <QrCode size={15} />
-                  Scan QR code
-                </button>
-              )}
-              {entry.lockType === 'camera' && (
-                <p
-                  style={{
-                    fontSize: '13px',
-                    marginTop: '10px',
-                    color: 'var(--text-muted)',
-                  }}
-                >
-                  {entry.lockHint}
-                </p>
-              )}
-            </div>
+            <EntryLocked entry={entry} timeLeft={timeLeft} formatTime={formatTime} />
           )}
         </div>
       </div>
 
-      {/* Quote section */}
-      <div style={{ padding: '14px 22px 20px' }}>
-        <p
-          style={{
-            fontSize: '13.5px',
-            fontStyle: 'italic',
-            lineHeight: 1.65,
-            color: 'var(--text-secondary)',
-          }}
-        >
-          {entry.quote}
-        </p>
-        <p
-          style={{
-            fontSize: '10px',
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            marginTop: '14px',
-            textTransform: 'uppercase',
-            color: 'var(--text-muted)',
-            fontFamily: "'Space Mono', monospace",
-          }}
-        >
-          {entry.recordedAt}
-        </p>
-      </div>
+      <EntryQuote quote={entry.quote} recordedAt={entry.recordedAt} />
     </div>
   );
 }

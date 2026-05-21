@@ -65,7 +65,7 @@ export default function BottomNav() {
   return (
     <nav
       id="bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-50"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg z-50"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       {/* Glass background bar */}

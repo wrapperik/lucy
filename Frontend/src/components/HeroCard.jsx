@@ -1,5 +1,6 @@
 import { useApp } from '../context/AppContext';
-import { Clock, QrCode } from 'lucide-react';
+import HeroAvatar from './hero/HeroAvatar';
+import HeroStatusBar from './hero/HeroStatusBar';
 
 export default function HeroCard() {
   const { currentTime, entries, unlockedEntries } = useApp();
@@ -26,29 +27,7 @@ export default function HeroCard() {
     >
       {/* Top section: avatar + text */}
       <div className="flex items-start gap-4" style={{ marginBottom: '20px' }}>
-        <div className="relative shrink-0">
-          <img
-            src="/lucy-avatar.png"
-            alt="Lucy"
-            className="rounded-full object-cover"
-            style={{
-              width: '60px',
-              height: '60px',
-              border: '2.5px solid rgba(200, 149, 108, 0.35)',
-            }}
-          />
-          <div
-            className="absolute rounded-full"
-            style={{
-              bottom: '-1px',
-              right: '-1px',
-              width: '14px',
-              height: '14px',
-              backgroundColor: 'var(--accent)',
-              border: '2.5px solid var(--bg-card)',
-            }}
-          />
-        </div>
+        <HeroAvatar src="/lucy-avatar.png" alt="Lucy" />
         <div className="flex-1 min-w-0 pt-0.5">
           <p
             style={{
@@ -87,43 +66,7 @@ export default function HeroCard() {
         </div>
       </div>
 
-      {/* Status bar */}
-      <div
-        className="flex items-center justify-between"
-        style={{
-          padding: '12px 18px',
-          borderRadius: '14px',
-          background: 'var(--bg-card-inner)',
-          border: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="flex items-center" style={{ gap: '10px' }}>
-          <Clock size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
-          <span
-            style={{
-              fontSize: '11.5px',
-              letterSpacing: '0.06em',
-              color: 'var(--text-secondary)',
-              fontFamily: "'Space Mono', monospace",
-            }}
-          >
-            {timeStr}
-          </span>
-        </div>
-        <div className="flex items-center" style={{ gap: '10px' }}>
-          <QrCode size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
-          <span
-            style={{
-              fontSize: '11.5px',
-              letterSpacing: '0.06em',
-              color: 'var(--text-secondary)',
-              fontFamily: "'Space Mono', monospace",
-            }}
-          >
-            {unlockedCount}/{totalEntries} UNLOCKED
-          </span>
-        </div>
-      </div>
+      <HeroStatusBar timeStr={timeStr} unlockedCount={unlockedCount} totalEntries={totalEntries} />
     </div>
   );
 }

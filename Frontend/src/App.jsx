@@ -11,7 +11,7 @@ export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        <div className="relative min-h-screen corner-glow">
+        <div className="relative min-h-screen corner-glow w-full max-w-lg">
           <main className="relative z-10 max-w-lg mx-auto w-full">
             <Routes>
               <Route path="/" element={<DiaryPage />} />
