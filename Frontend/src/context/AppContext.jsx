@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import entries from '../data/entries';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import staticEntries from '../data/entries';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const AppContext = createContext();
 
@@ -7,14 +9,109 @@ export function useApp() {
   return useContext(AppContext);
 }
 
+/**
+ * Map a backend entry document into the shape the frontend components expect.
+ */
+function mapBackendEntry(e) {
+  return {
+    id: e._id,
+    day: String(e.day).padStart(2, '0'),
+    title: e.title,
+    duration: e.duration || '0:00',
+    lockType: e.triggerType === 'none' ? 'none' : e.triggerType,
+    quote: e.caption ? `"${e.caption}"` : '',
+    recordedAt: e.recordedAt ? `RECORDED ${e.recordedAt.toUpperCase()}` : '',
+    thumbnail: e.posterUrl || '/lucy-vlog-thumb.png',
+    videoUrl: e.videoUrl || null,
+    // Lock specifics
+    qrCode: e.qrCode || null,
+    lockMessage: e.triggerHint || '',
+    lockHint: e.triggerHint || '',
+    cameraPrompt: e.cameraPrompt || '',
+    lockDuration: (e.lockDuration || 5) * 60 * 1000,
+  };
+}
+
 export function AppProvider({ children }) {
+  // App Loading Screen (2.5s initial delay for premium feeling)
+  const [appLoading, setAppLoading] = useState(true);
+
+  // Onboarding screens
+  const [onboardingCompleted, setOnboardingCompleted] = useState(() => {
+    return localStorage.getItem('lucy-onboarding-completed') === 'true';
+  });
+
+  // User auth state
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('lucy-user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // Camera permissions explanation screen state
+  const [cameraPermissionGranted, setCameraPermissionGranted] = useState(() => {
+    return localStorage.getItem('lucy-camera-permission-granted') === 'true';
+  });
+
+  // Entries (fetched from API, falls back to static)
+  const [entries, setEntries] = useState(staticEntries);
+  const [entriesLoading, setEntriesLoading] = useState(true);
+  const [entriesError, setEntriesError] = useState(null);
+  const [usingBackend, setUsingBackend] = useState(false);
+
+  // Ref to prevent double-fetch in StrictMode
+  const fetchedRef = useRef(false);
+
+  // Fetch entries from backend
+  const fetchEntries = useCallback(async () => {
+    setEntriesLoading(true);
+    setEntriesError(null);
+    try {
+      const res = await fetch(`${API_URL}/entries`);
+      if (!res.ok) throw new Error(`Server responded ${res.status}`);
+      const data = await res.json();
+      if (data.length > 0) {
+        setEntries(data.map(mapBackendEntry));
+        setUsingBackend(true);
+      } else {
+        setEntries(staticEntries);
+        setUsingBackend(true);
+      }
+    } catch {
+      setUsingBackend(false);
+    } finally {
+      setEntriesLoading(false);
+    }
+  }, []);
+
+  // Public refresh function — called by admin page after saving
+  const refreshEntries = useCallback(async () => {
+    await fetchEntries();
+  }, [fetchEntries]);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchEntries();
+    }
+  }, [fetchEntries]);
+
+  // Loading screen timer (runs safely on mount/remount in StrictMode)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAppLoading(false);
+    }, 2200);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Track which entries are unlocked
   const [unlockedEntries, setUnlockedEntries] = useState(() => {
     const saved = localStorage.getItem('lucy-unlocked');
-    const defaults = entries.filter(e => e.lockType === 'none').map(e => e.id);
+    const defaults = staticEntries.filter(e => e.lockType === 'none').map(e => String(e.id));
     if (saved) {
       const parsed = JSON.parse(saved);
-      return [...new Set([...defaults, ...parsed])];
+      return [...new Set([...defaults, ...parsed.map(String)])];
     }
     return defaults;
   });
@@ -48,28 +145,66 @@ export function AppProvider({ children }) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Auto-unlock entries with lockType 'none' when entries load from API
+  useEffect(() => {
+    const noneIds = entries.filter(e => e.lockType === 'none').map(e => String(e.id));
+    if (noneIds.length > 0) {
+      setUnlockedEntries(prev => {
+        const updated = [...new Set([...prev, ...noneIds])];
+        if (updated.length !== prev.length) return updated;
+        return prev;
+      });
+    }
+  }, [entries]);
+
+  // Sync unlocked entries when signed in or when new ones unlock
+  useEffect(() => {
+    localStorage.setItem('lucy-unlocked', JSON.stringify(unlockedEntries));
+    
+    // Sync with backend if logged in
+    if (currentUser?.id) {
+      const syncProgress = async () => {
+        try {
+          const res = await fetch(`${API_URL}/auth/sync-unlocked`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: currentUser.id,
+              unlockedEntries
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            // Merge merged unlocked list from DB back to state
+            const serverUnlocked = data.unlockedEntries.map(String);
+            setUnlockedEntries(prev => [...new Set([...prev, ...serverUnlocked])]);
+          }
+        } catch (e) {
+          console.warn('Could not sync unlocked entries to server:', e);
+        }
+      };
+      syncProgress();
+    }
+  }, [unlockedEntries, currentUser]);
+
   // Update clock
   useEffect(() => {
     const interval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Save unlocked entries
-  useEffect(() => {
-    localStorage.setItem('lucy-unlocked', JSON.stringify(unlockedEntries));
-  }, [unlockedEntries]);
-
   // Unlock an entry
   const unlockEntry = useCallback((entryId) => {
     setUnlockedEntries(prev => {
-      if (prev.includes(entryId)) return prev;
-      return [...prev, entryId];
+      const id = String(entryId);
+      if (prev.includes(id)) return prev;
+      return [...prev, id];
     });
   }, []);
 
   // Check if entry is unlocked
   const isEntryUnlocked = useCallback((entryId) => {
-    return unlockedEntries.includes(entryId);
+    return unlockedEntries.includes(String(entryId));
   }, [unlockedEntries]);
 
   // Get time remaining for time-locked entries
@@ -87,7 +222,6 @@ export function AppProvider({ children }) {
     );
     if (matchingEntry) {
       unlockEntry(matchingEntry.id);
-      // Track scanned code
       setScannedCodes(prev => {
         const updated = [...new Set([...prev, scannedValue])];
         localStorage.setItem('lucy-scanned', JSON.stringify(updated));
@@ -96,7 +230,7 @@ export function AppProvider({ children }) {
       return { success: true, entry: matchingEntry };
     }
     return { success: false, entry: null };
-  }, [unlockEntry]);
+  }, [entries, unlockEntry]);
 
   // Admin login
   const loginAdmin = useCallback((passphrase) => {
@@ -115,8 +249,105 @@ export function AppProvider({ children }) {
     localStorage.setItem('lucy-selfies', JSON.stringify(newSelfies));
   }, [selfies]);
 
+  // Complete onboarding
+  const completeOnboarding = useCallback(() => {
+    setOnboardingCompleted(true);
+    localStorage.setItem('lucy-onboarding-completed', 'true');
+  }, []);
+
+  // Camera permissions prompt wrapper
+  const requestCameraPermission = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Stop the stream immediately, we only wanted to request permission
+      stream.getTracks().forEach(track => track.stop());
+      setCameraPermissionGranted(true);
+      localStorage.setItem('lucy-camera-permission-granted', 'true');
+      return true;
+    } catch (err) {
+      console.warn('Camera permission denied or not supported:', err);
+      // Still set true in state to bypass prompt if user decides or if browser mocks it
+      setCameraPermissionGranted(true);
+      localStorage.setItem('lucy-camera-permission-granted', 'true');
+      return false;
+    }
+  }, []);
+
+  // Register User
+  const registerUser = useCallback(async (username, email, password) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Registration failed' };
+      }
+      
+      setCurrentUser(data);
+      localStorage.setItem('lucy-user', JSON.stringify(data));
+      // Load user's unlocked entries
+      if (data.unlockedEntries && data.unlockedEntries.length > 0) {
+        setUnlockedEntries(prev => [...new Set([...prev, ...data.unlockedEntries.map(String)])]);
+      }
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: 'Cannot connect to authentication server' };
+    }
+  }, []);
+
+  // Login User
+  const loginUser = useCallback(async (emailOrUsername, password) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailOrUsername, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Invalid credentials' };
+      }
+      
+      setCurrentUser(data);
+      localStorage.setItem('lucy-user', JSON.stringify(data));
+      // Merge user's unlocked entries
+      if (data.unlockedEntries && data.unlockedEntries.length > 0) {
+        setUnlockedEntries(prev => [...new Set([...prev, ...data.unlockedEntries.map(String)])]);
+      }
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: 'Cannot connect to authentication server' };
+    }
+  }, []);
+
+  // Logout User
+  const logoutUser = useCallback(() => {
+    setCurrentUser(null);
+    localStorage.removeItem('lucy-user');
+    // Keep local unlocks or reset to defaults
+    const defaults = staticEntries.filter(e => e.lockType === 'none').map(e => String(e.id));
+    setUnlockedEntries(defaults);
+    localStorage.setItem('lucy-unlocked', JSON.stringify(defaults));
+  }, []);
+
   const value = {
+    appLoading,
+    onboardingCompleted,
+    completeOnboarding,
+    currentUser,
+    registerUser,
+    loginUser,
+    logoutUser,
+    cameraPermissionGranted,
+    requestCameraPermission,
     entries,
+    entriesLoading,
+    entriesError,
+    usingBackend,
+    refreshEntries,
     unlockedEntries,
     unlockEntry,
     isEntryUnlocked,
