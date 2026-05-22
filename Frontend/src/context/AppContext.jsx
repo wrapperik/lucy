@@ -36,10 +36,8 @@ export function AppProvider({ children }) {
   // App Loading Screen (2.5s initial delay for premium feeling)
   const [appLoading, setAppLoading] = useState(true);
 
-  // Onboarding screens
-  const [onboardingCompleted, setOnboardingCompleted] = useState(() => {
-    return localStorage.getItem('lucy-onboarding-completed') === 'true';
-  });
+  // Onboarding screens (transient state so it can always be viewed on fresh load)
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   // User auth state
   const [currentUser, setCurrentUser] = useState(() => {
@@ -252,7 +250,6 @@ export function AppProvider({ children }) {
   // Complete onboarding
   const completeOnboarding = useCallback(() => {
     setOnboardingCompleted(true);
-    localStorage.setItem('lucy-onboarding-completed', 'true');
   }, []);
 
   // Camera permissions prompt wrapper
