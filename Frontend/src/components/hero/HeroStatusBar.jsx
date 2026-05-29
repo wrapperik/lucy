@@ -1,4 +1,4 @@
-import { Clock, QrCode } from 'lucide-react';
+import { ClockCircleLinear, QrCodeLinear } from '@solar-icons/react-perf';
 
 export default function HeroStatusBar({ timeStr, unlockedCount, totalEntries }) {
   return (
@@ -12,7 +12,7 @@ export default function HeroStatusBar({ timeStr, unlockedCount, totalEntries }) 
       }}
     >
       <div className="flex items-center" style={{ gap: '10px' }}>
-        <Clock size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
+        <ClockCircleLinear size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
         <span
           style={{
             fontSize: '11.5px',
@@ -25,7 +25,7 @@ export default function HeroStatusBar({ timeStr, unlockedCount, totalEntries }) 
         </span>
       </div>
       <div className="flex items-center" style={{ gap: '10px' }}>
-        <QrCode size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
+        <QrCodeLinear size={14} style={{ color: 'var(--accent)', opacity: 0.9 }} />
         <span
           style={{
             fontSize: '11.5px',

@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+import { StarsLinear } from '@solar-icons/react-perf';
 
 export default function LoadingScreen() {
   return (
@@ -6,7 +6,7 @@ export default function LoadingScreen() {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: '#0c1015',
+        backgroundColor: 'var(--bg-app)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -33,13 +33,13 @@ export default function LoadingScreen() {
             width: '90px',
             height: '90px',
             borderRadius: '28px',
-            border: '2px solid rgba(200, 149, 108, 0.25)',
+            border: '2px solid var(--accent-glow-strong)',
             padding: '4px',
             marginBottom: '28px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 32px rgba(200, 149, 108, 0.15)',
+            boxShadow: '0 8px 32px rgba(243, 129, 85, 0.15)',
           }}
         >
           <img
@@ -82,7 +82,7 @@ export default function LoadingScreen() {
 
         <h1
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             color: 'var(--text-primary)',
             fontSize: '26px',
             fontWeight: 700,
@@ -109,7 +109,7 @@ export default function LoadingScreen() {
 
         {/* Spinner */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Loader2 size={18} className="animate-spin-slow" style={{ color: 'var(--accent)' }} />
+          <StarsLinear size={18} className="animate-spin-slow" style={{ color: 'var(--accent)' }} />
           <span
             style={{
               fontSize: '11px',

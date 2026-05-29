@@ -1,5 +1,5 @@
 import { useApp } from '../context/AppContext';
-import { Camera, Sparkles } from 'lucide-react';
+import { CameraLinear, StarsLinear } from '@solar-icons/react-perf';
 import { useNavigate } from 'react-router-dom';
 
 export default function PromptsPage() {
@@ -27,7 +27,7 @@ export default function PromptsPage() {
         </p>
         <h1
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             color: 'var(--text-primary)',
             fontSize: '30px',
             fontWeight: 700,
@@ -76,7 +76,7 @@ export default function PromptsPage() {
                 border: '1px solid var(--accent-glow-strong)',
               }}
             >
-              <Camera size={20} style={{ color: 'var(--accent)' }} />
+              <CameraLinear size={20} style={{ color: 'var(--accent)' }} />
             </div>
 
             {/* Text */}
@@ -111,10 +111,10 @@ export default function PromptsPage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 2px 10px rgba(200, 149, 108, 0.2)',
+                boxShadow: '0 2px 10px rgba(243, 129, 85, 0.25)',
               }}
             >
-              <Sparkles size={13} />
+              <StarsLinear size={13} />
               Try
             </button>
           </div>
@@ -123,7 +123,7 @@ export default function PromptsPage() {
 
       {cameraEntries.length === 0 && (
         <div className="flex flex-col items-center justify-center text-center" style={{ paddingTop: '80px' }}>
-          <Camera size={44} style={{ color: 'var(--text-muted)', marginBottom: '16px' }} />
+          <CameraLinear size={44} style={{ color: 'var(--text-muted)', marginBottom: '16px' }} />
           <p style={{ fontSize: '16px', color: 'var(--text-secondary)' }}>
             No camera prompts yet.
           </p>

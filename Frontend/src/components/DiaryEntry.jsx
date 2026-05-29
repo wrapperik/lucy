@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Play, Pause, VolumeX, Volume2 } from 'lucide-react';
-import EntryHeader from './diary/EntryHeader';
-import EntryLocked from './diary/EntryLocked';
-import EntryQuote from './diary/EntryQuote';
+import { LockLinear, LockUnlockedLinear, ClockCircleLinear, QrCodeLinear, CameraLinear } from '@solar-icons/react-perf';
+
+const lockIcons = {
+  time: ClockCircleLinear,
+  qr: QrCodeLinear,
+  camera: CameraLinear,
+};
 
 export default function DiaryEntry({ entry, index }) {
+  const navigate = useNavigate();
   const { isEntryUnlocked, unlockEntry, getTimeRemaining } = useApp();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const [timeLeft, setTimeLeft] = useState(null);
 
   const unlocked = isEntryUnlocked(entry.id);
@@ -34,90 +37,132 @@ export default function DiaryEntry({ entry, index }) {
     const totalSeconds = Math.ceil(ms / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  const LockIcon = lockIcons[entry.lockType] || LockLinear;
 
   return (
     <div
-      className="mx-5 rounded-[20px] overflow-hidden animate-fade-in-up"
+      onClick={() => navigate(`/entry/${entry.id}`)}
+      className="entry-card-compact rounded-[28px] overflow-hidden animate-fade-in-up flex flex-col"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && navigate(`/entry/${entry.id}`)}
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border-card)',
         boxShadow: 'var(--card-shadow)',
-        animationDelay: `${index * 0.1}s`,
+        animationDelay: `${index * 0.08}s`,
         animationFillMode: 'backwards',
+        padding: '16px',
+        cursor: 'pointer',
+        width: '100%',
+        gap: '14px',
       }}
     >
-      <EntryHeader day={entry.day} duration={entry.duration} title={entry.title} />
+      {/* Thumbnail (Large aspect-square) */}
+      <div
+        style={{
+          width: '100%',
+          aspectRatio: '1 / 1',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          position: 'relative',
+          background: 'var(--bg-card-inner)',
+          flexShrink: 0,
+        }}
+      >
+        {unlocked ? (
+          <img
+            src={entry.thumbnail}
+            alt={entry.title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+            }}
+          />
+        ) : (
+          <div
+            className="flex items-center justify-center"
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'var(--accent-glow)',
+            }}
+          >
+            <LockIcon size={32} style={{ color: 'var(--accent)' }} className="animate-float" />
+          </div>
+        )}
+      </div>
 
-      {/* Video / Lock area */}
-      <div style={{ padding: '0 22px 8px' }}>
-        <div
-          className="relative overflow-hidden"
+      {/* Text content */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, padding: '0 4px' }}>
+        {/* Day & Duration Row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', justifyContent: 'space-between' }}>
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--accent)',
+              fontFamily: "'Space Mono', monospace",
+            }}
+          >
+            DAY {entry.day}
+          </span>
+          {entry.duration && entry.duration !== '0:00' && (
+            <span
+              style={{
+                fontSize: '11px',
+                color: 'var(--text-muted)',
+                fontFamily: "'Space Mono', monospace",
+              }}
+            >
+              {entry.duration}
+            </span>
+          )}
+        </div>
+
+        {/* Title (Line Clamped) */}
+        <h3
           style={{
-            background: 'var(--bg-card-inner)',
-            borderRadius: '16px',
-            aspectRatio: '16 / 11',
+            fontFamily: "'Outfit', sans-serif",
+            color: 'var(--text-primary)',
+            fontSize: '18px',
+            fontWeight: 700,
+            lineHeight: 1.35,
+            margin: '2px 0',
+            overflow: 'hidden',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            textOverflow: 'ellipsis',
           }}
         >
+          {entry.title}
+        </h3>
+
+        {/* Status Badge */}
+        <div style={{ display: 'flex', marginTop: '4px' }}>
           {unlocked ? (
-            <>
-              <img
-                src={entry.thumbnail}
-                alt={entry.title}
-                className="w-full h-full object-cover"
-              />
-              {/* Play button overlay */}
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="absolute inset-0 flex items-center justify-center transition-colors"
-                style={{ background: isPlaying ? 'transparent' : 'rgba(0,0,0,0.22)' }}
-                aria-label={isPlaying ? 'Pause' : 'Play'}
-              >
-                {!isPlaying && (
-                  <div
-                    className="flex items-center justify-center backdrop-blur-sm"
-                    style={{
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.18)',
-                      border: '2px solid rgba(255,255,255,0.30)',
-                    }}
-                  >
-                    <Play size={22} fill="white" className="text-white" style={{ marginLeft: '2px' }} />
-                  </div>
-                )}
-              </button>
-              {/* Top-right controls */}
-              <div className="absolute flex items-center" style={{ top: '12px', right: '12px', gap: '8px' }}>
-                <button
-                  onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }}
-                  className="flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
-                  style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(0,0,0,0.50)' }}
-                  aria-label={isMuted ? 'Unmute' : 'Mute'}
-                >
-                  {isMuted ? <VolumeX size={15} className="text-white" /> : <Volume2 size={15} className="text-white" />}
-                </button>
-                {isPlaying && (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setIsPlaying(false); }}
-                    className="flex items-center justify-center backdrop-blur-sm transition-transform active:scale-90"
-                    style={{ width: '34px', height: '34px', borderRadius: '50%', background: 'rgba(0,0,0,0.50)' }}
-                    aria-label="Pause"
-                  >
-                    <Pause size={15} className="text-white" />
-                  </button>
-                )}
-              </div>
-            </>
+            <span className="lock-badge unlocked" style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '9px' }}>
+              <LockUnlockedLinear size={9} />
+              UNLOCKED
+            </span>
           ) : (
-            <EntryLocked entry={entry} timeLeft={timeLeft} formatTime={formatTime} />
+            <span className="lock-badge locked" style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '9px' }}>
+              <LockLinear size={9} />
+              {entry.lockType === 'time' && timeLeft !== null
+                ? formatTime(timeLeft)
+                : 'LOCKED'}
+            </span>
           )}
         </div>
       </div>
-
-      <EntryQuote quote={entry.quote} recordedAt={entry.recordedAt} />
     </div>
   );
 }

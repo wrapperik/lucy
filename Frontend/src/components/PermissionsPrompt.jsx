@@ -1,5 +1,5 @@
 import { useApp } from '../context/AppContext';
-import { Camera, Check, ShieldAlert } from 'lucide-react';
+import { CameraLinear, CheckCircleLinear, ShieldWarningLinear } from '@solar-icons/react-perf';
 import { useState } from 'react';
 
 export default function PermissionsPrompt({ onProceed }) {
@@ -18,7 +18,7 @@ export default function PermissionsPrompt({ onProceed }) {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: '#0c1015',
+        backgroundColor: 'var(--bg-app)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -32,11 +32,10 @@ export default function PermissionsPrompt({ onProceed }) {
       <div
         className="animate-fade-in-up"
         style={{
-          background: 'linear-gradient(160deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%)',
-          border: '1px solid var(--border-card)',
-          borderRadius: '24px',
-          padding: '36px 24px',
-          boxShadow: 'var(--card-shadow)',
+          background: 'transparent',
+          border: 'none',
+          padding: '20px 12px',
+          boxShadow: 'none',
           maxWidth: '360px',
           width: '100%',
           display: 'flex',
@@ -59,13 +58,13 @@ export default function PermissionsPrompt({ onProceed }) {
           }}
           className="animate-float"
         >
-          <Camera size={32} style={{ color: 'var(--accent)' }} />
+          <CameraLinear size={32} style={{ color: 'var(--accent)' }} />
         </div>
 
         {/* Title */}
         <h2
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             color: 'var(--text-primary)',
             fontSize: '22px',
             fontWeight: 700,
@@ -113,7 +112,7 @@ export default function PermissionsPrompt({ onProceed }) {
                 flexShrink: 0,
               }}
             >
-              <Check size={11} style={{ color: '#22c55e' }} />
+              <CheckCircleLinear size={11} style={{ color: '#22c55e' }} />
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0 }}>
               <strong>QR Code Scanner:</strong> Scan clues at physical landmarks to unlock entries.
@@ -134,7 +133,7 @@ export default function PermissionsPrompt({ onProceed }) {
                 flexShrink: 0,
               }}
             >
-              <Check size={11} style={{ color: '#22c55e' }} />
+              <CheckCircleLinear size={11} style={{ color: '#22c55e' }} />
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text-primary)', margin: 0 }}>
               <strong>AI Compositing:</strong> Take a photo to blend with Lucy's avatar portrait.
@@ -155,7 +154,7 @@ export default function PermissionsPrompt({ onProceed }) {
             background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
             color: 'white',
             border: 'none',
-            boxShadow: '0 4px 16px rgba(200, 149, 108, 0.2)',
+            boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
             cursor: requesting ? 'wait' : 'pointer',
             marginBottom: '12px',
           }}
@@ -180,7 +179,7 @@ export default function PermissionsPrompt({ onProceed }) {
 
       {/* Trust disclaimer */}
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '24px', color: 'var(--text-muted)' }}>
-        <ShieldAlert size={14} />
+        <ShieldWarningLinear size={14} />
         <span style={{ fontSize: '12px' }}>Your images are processed locally on your device.</span>
       </div>
     </div>

@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ArrowRight, QrCode, Sparkles, BookOpen } from 'lucide-react';
+import { AltArrowRightLinear, QrCodeLinear, StarsLinear, Book2Linear } from '@solar-icons/react-perf';
 
 const STEPS = [
   {
     title: "A Hidden Story",
     description: "Lucy left behind a pocket video diary. She documented her walks, her favourite spots, and her secrets. But she didn't make it easy to find.",
-    icon: <BookOpen style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
+    icon: <Book2Linear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
   },
   {
     title: "Interact & Unlock",
     description: "To reveal the next days of her diary, you must complete challenges. Scan QR codes at her routes, photograph the sky, or wait as the timer runs down.",
-    icon: <QrCode style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
+    icon: <QrCodeLinear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
   },
   {
     title: "Selfie with Lucy",
     description: "Visit her locations and take a selfie. Through ambient AI compositing, Lucy will gently join your photos — documenting that you were there too.",
-    icon: <Sparkles style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
+    icon: <StarsLinear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
   },
 ];
 
@@ -50,7 +50,7 @@ export default function OnboardingScreen() {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: '#0c1015',
+        backgroundColor: 'var(--bg-app)',
         zIndex: 9990,
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch',
@@ -87,14 +87,14 @@ export default function OnboardingScreen() {
               width: isShortScreen ? '36px' : '48px',
               height: isShortScreen ? '36px' : '48px',
               borderRadius: '12px',
-              border: '1px solid rgba(200, 149, 108, 0.25)',
+              border: '1px solid var(--accent-glow-strong)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'var(--accent-glow)',
             }}
           >
-            <BookOpen size={isShortScreen ? 16 : 20} style={{ color: 'var(--accent)' }} />
+            <Book2Linear size={isShortScreen ? 16 : 20} style={{ color: 'var(--accent)' }} />
           </div>
         </div>
 
@@ -112,11 +112,10 @@ export default function OnboardingScreen() {
             key={currentStep}
             className="animate-fade-in-up"
             style={{
-              background: 'linear-gradient(160deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%)',
-              border: '1px solid var(--border-card)',
-              borderRadius: '24px',
-              padding: isShortScreen ? '24px 20px 24px' : '40px 24px 32px',
-              boxShadow: 'var(--card-shadow)',
+              background: 'transparent',
+              border: 'none',
+              padding: isShortScreen ? '12px 10px' : '20px 12px',
+              boxShadow: 'none',
               width: '100%',
               maxWidth: '360px',
               display: 'flex',
@@ -164,7 +163,7 @@ export default function OnboardingScreen() {
             {/* Title */}
             <h2
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Outfit', sans-serif",
                 color: 'var(--text-primary)',
                 fontSize: isShortScreen ? '20px' : '24px',
                 fontWeight: 700,
@@ -232,13 +231,13 @@ export default function OnboardingScreen() {
               background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
               color: 'white',
               border: 'none',
-              boxShadow: '0 8px 28px rgba(200, 149, 108, 0.25)',
+              boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
               cursor: 'pointer',
               boxSizing: 'border-box',
             }}
           >
             {currentStep === STEPS.length - 1 ? "Start exploring" : "Continue"}
-            <ArrowRight size={16} />
+            <AltArrowRightLinear size={16} />
           </button>
 
           {/* Skip button */}

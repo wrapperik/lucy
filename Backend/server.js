@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import entryRoutes from './routes/entries.js';
 import authRoutes from './routes/auth.js';
+import reactionRoutes from './routes/reactions.js';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json({ limit: '10mb' }));
 /* ── Routes ── */
 app.use('/api/entries', entryRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/reactions', reactionRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

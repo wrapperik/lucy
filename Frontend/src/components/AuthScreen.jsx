@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Lock, Mail, User, Loader2, Check, AlertCircle, ArrowRight, BookOpen } from 'lucide-react';
+import { LockLinear, LetterLinear, UserLinear, StarsLinear, CheckCircleLinear, ShieldWarningLinear, AltArrowRightLinear, Book2Linear } from '@solar-icons/react-perf';
 
 export default function AuthScreen({ onComplete }) {
   const { registerUser, loginUser } = useApp();
@@ -51,7 +51,7 @@ export default function AuthScreen({ onComplete }) {
           setError(res.error);
         }
       }
-    } catch (err) {
+    } catch {
       setError('Connection to backend failed. Try again.');
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ export default function AuthScreen({ onComplete }) {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: '#0c1015',
+        backgroundColor: 'var(--bg-app)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -77,11 +77,10 @@ export default function AuthScreen({ onComplete }) {
       <div
         className="animate-fade-in-up"
         style={{
-          background: 'linear-gradient(160deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%)',
-          border: '1px solid var(--border-card)',
-          borderRadius: '24px',
-          padding: '36px 24px',
-          boxShadow: 'var(--card-shadow)',
+          background: 'transparent',
+          border: 'none',
+          padding: '20px 12px',
+          boxShadow: 'none',
           maxWidth: '360px',
           width: '100%',
           display: 'flex',
@@ -95,7 +94,7 @@ export default function AuthScreen({ onComplete }) {
             width: '60px',
             height: '60px',
             borderRadius: '18px',
-            border: '1px solid rgba(200, 149, 108, 0.25)',
+            border: '1px solid var(--accent-glow-strong)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -104,13 +103,13 @@ export default function AuthScreen({ onComplete }) {
           }}
           className="animate-float"
         >
-          <BookOpen size={24} style={{ color: 'var(--accent)' }} />
+            <Book2Linear size={24} style={{ color: 'var(--accent)' }} />
         </div>
 
         {/* Title */}
         <h2
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             color: 'var(--text-primary)',
             fontSize: '24px',
             fontWeight: 700,
@@ -137,7 +136,7 @@ export default function AuthScreen({ onComplete }) {
           {isSignUp && (
             <div style={{ position: 'relative', width: '100%' }}>
               <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                <User size={16} />
+                <UserLinear size={16} />
               </span>
               <input
                 type="text"
@@ -161,7 +160,7 @@ export default function AuthScreen({ onComplete }) {
 
           <div style={{ position: 'relative', width: '100%' }}>
             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-              <Mail size={16} />
+              <LetterLinear size={16} />
             </span>
             <input
               type="text"
@@ -184,7 +183,7 @@ export default function AuthScreen({ onComplete }) {
 
           <div style={{ position: 'relative', width: '100%' }}>
             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-              <Lock size={16} />
+              <LockLinear size={16} />
             </span>
             <input
               type="password"
@@ -221,7 +220,7 @@ export default function AuthScreen({ onComplete }) {
                 textAlign: 'left',
               }}
             >
-              <AlertCircle size={14} style={{ flexShrink: 0 }} />
+              <ShieldWarningLinear size={14} style={{ flexShrink: 0 }} />
               <span>{error}</span>
             </div>
           )}
@@ -241,7 +240,7 @@ export default function AuthScreen({ onComplete }) {
                 textAlign: 'left',
               }}
             >
-              <Check size={14} style={{ flexShrink: 0 }} />
+              <CheckCircleLinear size={14} style={{ flexShrink: 0 }} />
               <span>Success! Synchronizing profile...</span>
             </div>
           )}
@@ -259,19 +258,19 @@ export default function AuthScreen({ onComplete }) {
               background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
               color: 'white',
               border: 'none',
-              boxShadow: '0 4px 16px rgba(200, 149, 108, 0.2)',
+              boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
               cursor: loading || success ? 'wait' : 'pointer',
               marginTop: '8px',
             }}
           >
             {loading ? (
-              <Loader2 size={16} className="animate-spin-slow" />
+              <StarsLinear size={16} className="animate-spin-slow" />
             ) : isSignUp ? (
               'Create Profile'
             ) : (
               'Sign In'
             )}
-            {!loading && <ArrowRight size={15} />}
+            {!loading && <AltArrowRightLinear size={15} />}
           </button>
         </form>
 

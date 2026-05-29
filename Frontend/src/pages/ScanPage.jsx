@@ -44,7 +44,7 @@ export default function ScanPage() {
       try {
         await scannerRef.current.stop();
         scannerRef.current.clear();
-      } catch (e) {
+      } catch {
         // ignore cleanup errors
       }
       scannerRef.current = null;
@@ -84,7 +84,7 @@ export default function ScanPage() {
         </p>
         <h1
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             color: 'var(--text-primary)',
             fontSize: '28px',
             fontWeight: 700,
@@ -118,7 +118,7 @@ export default function ScanPage() {
             </div>
             <p
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Outfit', sans-serif",
                 fontSize: '22px',
                 fontWeight: 700,
                 color: 'var(--text-primary)',
@@ -142,7 +142,7 @@ export default function ScanPage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 8px 28px rgba(200, 149, 108, 0.25)',
+                boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
               }}
             >
               <ScanLine size={20} />
@@ -221,7 +221,7 @@ export default function ScanPage() {
                 </div>
                 <h2
                   style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'Outfit', sans-serif",
                     fontSize: '24px',
                     fontWeight: 700,
                     color: 'var(--text-primary)',
@@ -254,7 +254,7 @@ export default function ScanPage() {
                 </div>
                 <h2
                   style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'Outfit', sans-serif",
                     fontSize: '24px',
                     fontWeight: 700,
                     color: 'var(--text-primary)',
@@ -279,7 +279,7 @@ export default function ScanPage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 8px 28px rgba(200, 149, 108, 0.25)',
+                boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
               }}
             >
               <ScanLine size={18} />

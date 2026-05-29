@@ -1,14 +1,15 @@
+/* eslint-disable no-unused-vars */
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, Sparkles, ScanLine, Camera, Settings } from 'lucide-react';
+import { Widget3Linear, StarsLinear, ScannerLinear, CameraLinear, SettingsLinear } from '@solar-icons/react-perf';
 
 const leftItems = [
-  { to: '/', icon: LayoutGrid, label: 'Diary' },
-  { to: '/selfie', icon: Sparkles, label: 'Selfie' },
+  { to: '/', icon: Widget3Linear, label: 'Diary' },
+  { to: '/selfie', icon: StarsLinear, label: 'Selfie' },
 ];
 
 const rightItems = [
-  { to: '/prompts', icon: Camera, label: 'Prompts' },
-  { to: '/admin', icon: Settings, label: 'Admin' },
+  { to: '/prompts', icon: CameraLinear, label: 'Prompts' },
+  { to: '/admin', icon: SettingsLinear, label: 'Admin' },
 ];
 
 function NavItem({ to, icon: Icon, label }) {
@@ -65,19 +66,22 @@ export default function BottomNav() {
   return (
     <nav
       id="bottom-nav"
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg z-50"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      className="fixed left-1/2 -translate-x-1/2 w-[90%] max-w-[430px] z-50 animate-fade-in-up"
+      style={{ bottom: '20px' }}
     >
       {/* Glass background bar */}
       <div
         className="glass"
         style={{
-          borderTop: '1px solid var(--border-subtle)',
+          borderRadius: '999px',
+          border: '1px solid var(--border-card)',
+          boxShadow: 'var(--card-shadow)',
+          padding: '0 8px',
         }}
       >
         <div
-          className="flex items-center justify-around max-w-lg mx-auto relative"
-          style={{ height: 'var(--nav-height)', padding: '0 12px' }}
+          className="flex items-center justify-around relative"
+          style={{ height: '72px' }}
         >
           {/* Left nav items */}
           {leftItems.map((item) => (
@@ -89,19 +93,19 @@ export default function BottomNav() {
             to="/scan"
             className="relative flex items-center justify-center transition-transform active:scale-90"
             style={({ isActive }) => ({
-              width: '56px',
-              height: '56px',
+              width: '52px',
+              height: '52px',
               borderRadius: '50%',
-              marginTop: '-26px',
+              marginTop: '-22px',
               background: isActive
                 ? 'linear-gradient(135deg, var(--accent-light), var(--accent))'
                 : 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
-              boxShadow: '0 6px 24px rgba(200, 149, 108, 0.35), 0 0 0 4px var(--bg-app)',
+              boxShadow: '0 6px 20px rgba(243, 129, 85, 0.35), 0 0 0 4px var(--bg-app)',
               border: 'none',
               flexShrink: 0,
             })}
           >
-            <ScanLine size={24} className="text-white" />
+            <ScannerLinear size={22} className="text-white" />
           </NavLink>
 
           {/* Right nav items */}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import BottomNav from './components/BottomNav';
 import DiaryPage from './pages/DiaryPage';
@@ -7,12 +7,35 @@ import SelfiePage from './pages/SelfiePage';
 import ScanPage from './pages/ScanPage';
 import PromptsPage from './pages/PromptsPage';
 import AdminPage from './pages/AdminPage';
+import EntryDetailPage from './pages/EntryDetailPage';
 
 // Import New UX Screens
 import LoadingScreen from './components/LoadingScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import AuthScreen from './components/AuthScreen';
 import PermissionsPrompt from './components/PermissionsPrompt';
+import ScrollToTop from './components/ScrollToTop';
+
+function MainApp() {
+  const location = useLocation();
+  const hideNav = location.pathname.startsWith('/entry/');
+
+  return (
+    <div className="relative min-h-screen corner-glow w-full max-w-lg">
+      <main className="relative z-10 max-w-lg mx-auto w-full">
+        <Routes>
+          <Route path="/" element={<DiaryPage />} />
+          <Route path="/entry/:id" element={<EntryDetailPage />} />
+          <Route path="/selfie" element={<SelfiePage />} />
+          <Route path="/scan" element={<ScanPage />} />
+          <Route path="/prompts" element={<PromptsPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </main>
+      {!hideNav && <BottomNav />}
+    </div>
+  );
+}
 
 function AppContent() {
   const {
@@ -65,18 +88,8 @@ function AppContent() {
   // 5. Main Pocket Diary Application
   return (
     <BrowserRouter>
-      <div className="relative min-h-screen corner-glow w-full max-w-lg">
-        <main className="relative z-10 max-w-lg mx-auto w-full">
-          <Routes>
-            <Route path="/" element={<DiaryPage />} />
-            <Route path="/selfie" element={<SelfiePage />} />
-            <Route path="/scan" element={<ScanPage />} />
-            <Route path="/prompts" element={<PromptsPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-          </Routes>
-        </main>
-        <BottomNav />
-      </div>
+      <ScrollToTop />
+      <MainApp />
     </BrowserRouter>
   );
 }

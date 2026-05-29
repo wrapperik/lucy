@@ -37,25 +37,6 @@ export default function SelfiePage() {
     setCameraActive(false);
   }, []);
 
-  const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (facingMode === 'user') {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-    }
-    ctx.drawImage(video, 0, 0);
-    const imageData = canvas.toDataURL('image/jpeg', 0.9);
-    setCapturedImage(imageData);
-    stopCamera();
-    setProcessing(true);
-    setTimeout(() => composeLucy(imageData), 2000);
-  }, [facingMode, stopCamera]);
-
   const composeLucy = useCallback((selfieData) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -80,7 +61,7 @@ export default function SelfiePage() {
         ctx.restore();
         ctx.beginPath();
         ctx.arc(x + lucySize / 2, y + lucySize / 2, lucySize / 2 + 2, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(200, 149, 108, 0.6)';
+        ctx.strokeStyle = 'rgba(243, 129, 85, 0.6)';
         ctx.lineWidth = 3;
         ctx.stroke();
         const result = canvas.toDataURL('image/jpeg', 0.9);
@@ -92,6 +73,25 @@ export default function SelfiePage() {
     };
     selfieImg.src = selfieData;
   }, [saveSelfie]);
+
+  const capturePhoto = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (facingMode === 'user') {
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+    }
+    ctx.drawImage(video, 0, 0);
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    setCapturedImage(imageData);
+    stopCamera();
+    setProcessing(true);
+    setTimeout(() => composeLucy(imageData), 2000);
+  }, [facingMode, stopCamera, composeLucy]);
 
   const downloadImage = useCallback(() => {
     if (!compositeImage) return;
@@ -166,7 +166,7 @@ export default function SelfiePage() {
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 border: '4px solid rgba(255,255,255,0.30)',
-                boxShadow: '0 4px 20px rgba(200, 149, 108, 0.3)',
+                boxShadow: '0 4px 20px rgba(243, 129, 85, 0.3)',
               }}
             >
               <Camera size={26} className="text-white" />
@@ -230,7 +230,7 @@ export default function SelfiePage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 4px 16px rgba(200, 149, 108, 0.2)',
+                boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
               }}
             >
               <Download size={18} />
@@ -272,8 +272,8 @@ export default function SelfiePage() {
                   width: '96px',
                   height: '96px',
                   borderRadius: '28px',
-                  border: '2px solid rgba(200, 149, 108, 0.25)',
-                  boxShadow: '0 8px 32px rgba(200, 149, 108, 0.15)',
+                  border: '2px solid var(--accent-glow-strong)',
+                  boxShadow: '0 8px 32px rgba(243, 129, 85, 0.15)',
                 }}
               >
                 <img
@@ -314,7 +314,7 @@ export default function SelfiePage() {
             </p>
             <h2
               style={{
-                fontFamily: "'Playfair Display', serif",
+                fontFamily: "'Outfit', sans-serif",
                 color: 'var(--text-primary)',
                 fontSize: '26px',
                 fontWeight: 700,
@@ -346,7 +346,7 @@ export default function SelfiePage() {
                 fontSize: '15px',
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
-                boxShadow: '0 8px 28px rgba(200, 149, 108, 0.25)',
+                boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
                 border: 'none',
               }}
             >

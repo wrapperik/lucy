@@ -8,7 +8,7 @@ export default function HeroAvatar({ src, alt }) {
         style={{
           width: '60px',
           height: '60px',
-          border: '2.5px solid rgba(200, 149, 108, 0.35)',
+          border: '2.5px solid var(--accent-glow-strong)',
         }}
       />
       <div

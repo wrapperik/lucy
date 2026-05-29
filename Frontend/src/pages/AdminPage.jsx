@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
-import { Lock, LogOut, Plus, Save, RotateCcw, Trash2, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { LockLinear, LogoutLinear, AddCircleLinear, DisketteLinear, RestartLinear, TrashBinTrashLinear, CheckCircleLinear, ShieldWarningLinear, StarsLinear } from '@solar-icons/react-perf';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -105,8 +105,6 @@ function EntryCard({ entry, index, onChange, onDelete }) {
     onChange(index, { ...entry, [field]: value });
   };
 
-  const triggerLabel = TRIGGER_TYPES.find(t => t.value === entry.triggerType)?.label || '';
-
   return (
     <div style={styles.card} className="animate-fade-in-up">
       {/* Card header */}
@@ -116,7 +114,7 @@ function EntryCard({ entry, index, onChange, onDelete }) {
       >
         <h2
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             fontSize: '20px',
             fontWeight: 700,
             color: 'var(--text-primary)',
@@ -140,7 +138,7 @@ function EntryCard({ entry, index, onChange, onDelete }) {
           }}
           aria-label="Delete entry"
         >
-          <Trash2 size={16} />
+          <TrashBinTrashLinear size={16} />
         </button>
       </div>
 
@@ -231,7 +229,7 @@ function EntryCard({ entry, index, onChange, onDelete }) {
       {/* Trigger section */}
       <div
         style={{
-          background: 'rgba(255,255,255,0.02)',
+          background: 'var(--bg-app)',
           border: '1px solid var(--border-card)',
           borderRadius: '16px',
           padding: '20px 18px',
@@ -346,9 +344,9 @@ function Toast({ message, type, onClose }) {
       }}
     >
       {type === 'success' ? (
-        <Check size={16} style={{ color: c.text }} />
+        <CheckCircleLinear size={16} style={{ color: c.text }} />
       ) : (
-        <AlertCircle size={16} style={{ color: c.text }} />
+        <ShieldWarningLinear size={16} style={{ color: c.text }} />
       )}
       <span style={{ fontSize: '13px', color: c.text, fontWeight: 500 }}>{message}</span>
     </div>
@@ -509,11 +507,11 @@ export default function AdminPage() {
             marginBottom: '22px',
           }}
         >
-          <Lock size={30} style={{ color: 'var(--accent)' }} />
+          <LockLinear size={30} style={{ color: 'var(--accent)' }} />
         </div>
         <h1
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Outfit', sans-serif",
             color: 'var(--text-primary)',
             fontSize: '26px',
             fontWeight: 700,
@@ -560,7 +558,7 @@ export default function AdminPage() {
               background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
               color: 'white',
               border: 'none',
-              boxShadow: '0 2px 10px rgba(200, 149, 108, 0.2)',
+              boxShadow: '0 2px 10px rgba(243, 129, 85, 0.25)',
               cursor: 'pointer',
             }}
           >
@@ -598,7 +596,7 @@ export default function AdminPage() {
           </p>
           <h1
             style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Outfit', sans-serif",
               fontSize: '26px',
               fontWeight: 700,
               color: 'var(--text-primary)',
@@ -625,7 +623,7 @@ export default function AdminPage() {
             cursor: 'pointer',
           }}
         >
-          <LogOut size={14} />
+          <LogoutLinear size={14} />
           Sign out
         </button>
       </div>
@@ -657,11 +655,11 @@ export default function AdminPage() {
             background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
             color: 'white',
             border: 'none',
-            boxShadow: '0 2px 12px rgba(200, 149, 108, 0.25)',
+            boxShadow: '0 2px 12px rgba(243, 129, 85, 0.25)',
             cursor: 'pointer',
           }}
         >
-          <Plus size={16} strokeWidth={2.5} />
+          <AddCircleLinear size={16} />
           New entry
         </button>
         <button
@@ -680,7 +678,7 @@ export default function AdminPage() {
             opacity: isSaving ? 0.6 : 1,
           }}
         >
-          {isSaving ? <Loader2 size={15} className="animate-spin-slow" /> : <Save size={15} />}
+          {isSaving ? <StarsLinear size={15} className="animate-spin-slow" /> : <DisketteLinear size={15} />}
           {isSaving ? 'Saving...' : 'Save'}
         </button>
         <button
@@ -697,7 +695,7 @@ export default function AdminPage() {
             cursor: 'pointer',
           }}
         >
-          <RotateCcw size={14} />
+          <RestartLinear size={14} />
           Reset
         </button>
       </div>
@@ -717,7 +715,7 @@ export default function AdminPage() {
           className="flex items-center justify-center"
           style={{ padding: '40px 0' }}
         >
-          <Loader2 size={28} className="animate-spin-slow" style={{ color: 'var(--accent)' }} />
+          <StarsLinear size={28} className="animate-spin-slow" style={{ color: 'var(--accent)' }} />
         </div>
       )}
 

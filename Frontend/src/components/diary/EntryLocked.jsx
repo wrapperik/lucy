@@ -1,10 +1,10 @@
-import { Clock, QrCode, Camera } from 'lucide-react';
+import { ClockCircleLinear, QrCodeLinear, CameraLinear } from '@solar-icons/react-perf';
 import { useNavigate } from 'react-router-dom';
 
 const lockIcons = {
-  time: <Clock size={28} style={{ color: 'var(--accent)' }} />,
-  qr: <QrCode size={28} style={{ color: 'var(--accent)' }} />,
-  camera: <Camera size={28} style={{ color: 'var(--accent)' }} />,
+  time: <ClockCircleLinear size={28} style={{ color: 'var(--accent)' }} />,
+  qr: <QrCodeLinear size={28} style={{ color: 'var(--accent)' }} />,
+  camera: <CameraLinear size={28} style={{ color: 'var(--accent)' }} />,
 };
 
 export default function EntryLocked({ entry, timeLeft, formatTime }) {
@@ -67,10 +67,10 @@ export default function EntryLocked({ entry, timeLeft, formatTime }) {
             background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
             color: 'white',
             border: 'none',
-            boxShadow: '0 4px 16px rgba(200, 149, 108, 0.2)',
+            boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
           }}
         >
-          <QrCode size={15} />
+          <QrCodeLinear size={15} />
           Scan QR code
         </button>
       )}

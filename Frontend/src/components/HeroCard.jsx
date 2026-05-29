@@ -1,7 +1,7 @@
 import { useApp } from '../context/AppContext';
 import HeroAvatar from './hero/HeroAvatar';
 import HeroStatusBar from './hero/HeroStatusBar';
-import { LogOut, User } from 'lucide-react';
+import { UserLinear, LogoutLinear } from '@solar-icons/react-perf';
 
 export default function HeroCard() {
   const { currentTime, entries, unlockedEntries, currentUser, logoutUser } = useApp();
@@ -25,12 +25,12 @@ export default function HeroCard() {
   return (
     <div
       id="hero-card"
-      className="mx-5 mt-6 rounded-[20px] animate-fade-in-up"
+      className="animate-fade-in-up"
       style={{
-        background: 'linear-gradient(160deg, var(--bg-card-elevated) 0%, var(--bg-card) 100%)',
-        border: '1px solid var(--border-card)',
-        boxShadow: 'var(--card-shadow)',
-        padding: '24px 22px 20px',
+        background: 'transparent',
+        border: 'none',
+        boxShadow: 'none',
+        padding: '16px 20px 0px',
         position: 'relative',
       }}
     >
@@ -61,7 +61,7 @@ export default function HeroCard() {
               justifyContent: 'center',
             }}
           >
-            <User size={10} style={{ color: 'var(--accent)' }} />
+            <UserLinear size={10} style={{ color: 'var(--accent)' }} />
           </div>
           <span
             style={{
@@ -91,7 +91,7 @@ export default function HeroCard() {
             }}
             title="Sign out"
           >
-            <LogOut size={10} />
+            <LogoutLinear size={10} />
           </button>
         </div>
       )}
@@ -115,7 +115,7 @@ export default function HeroCard() {
           </p>
           <h1
             style={{
-              fontFamily: "'Playfair Display', serif",
+              fontFamily: "'Outfit', sans-serif",
               color: 'var(--text-primary)',
               fontSize: '28px',
               fontWeight: 700,

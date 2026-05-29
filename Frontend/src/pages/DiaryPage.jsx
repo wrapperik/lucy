@@ -1,7 +1,7 @@
 import HeroCard from '../components/HeroCard';
 import DiaryEntry from '../components/DiaryEntry';
 import { useApp } from '../context/AppContext';
-import { Loader2, WifiOff } from 'lucide-react';
+import { StarsLinear, WiFiRouterRoundLinear } from '@solar-icons/react-perf';
 
 export default function DiaryPage() {
   const { entries, entriesLoading, usingBackend } = useApp();
@@ -34,7 +34,7 @@ export default function DiaryPage() {
             </>
           ) : (
             <>
-              <WifiOff size={11} />
+              <WiFiRouterRoundLinear size={12} />
               OFFLINE · Static data
             </>
           )}
@@ -44,12 +44,12 @@ export default function DiaryPage() {
       {/* Loading state */}
       {entriesLoading && entries.length === 0 && (
         <div className="flex items-center justify-center" style={{ padding: '60px 0' }}>
-          <Loader2 size={28} className="animate-spin-slow" style={{ color: 'var(--accent)' }} />
+          <StarsLinear size={28} className="animate-spin-slow" style={{ color: 'var(--accent)' }} />
         </div>
       )}
 
       {/* Diary entries */}
-      <div className="flex flex-col" style={{ gap: '20px', marginTop: '20px' }}>
+      <div className="flex flex-col" style={{ gap: '20px', padding: '0 20px', marginTop: '20px' }}>
         {entries.map((entry, index) => (
           <DiaryEntry key={entry.id} entry={entry} index={index} />
         ))}

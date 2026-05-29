@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import staticEntries from '../data/entries';
 
@@ -290,7 +291,7 @@ export function AppProvider({ children }) {
         setUnlockedEntries(prev => [...new Set([...prev, ...data.unlockedEntries.map(String)])]);
       }
       return { success: true };
-    } catch (e) {
+    } catch {
       return { success: false, error: 'Cannot connect to authentication server' };
     }
   }, []);
@@ -315,7 +316,7 @@ export function AppProvider({ children }) {
         setUnlockedEntries(prev => [...new Set([...prev, ...data.unlockedEntries.map(String)])]);
       }
       return { success: true };
-    } catch (e) {
+    } catch {
       return { success: false, error: 'Cannot connect to authentication server' };
     }
   }, []);

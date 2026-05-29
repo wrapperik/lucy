@@ -29,7 +29,7 @@ export default function EntryHeader({ day, duration, title }) {
       </div>
       <h2
         style={{
-          fontFamily: "'Playfair Display', serif",
+          fontFamily: "'Outfit', sans-serif",
           color: 'var(--text-primary)',
           fontSize: '24px',
           fontWeight: 700,
