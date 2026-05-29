@@ -45,20 +45,20 @@ export default function DiaryEntry({ entry, index }) {
   return (
     <div
       onClick={() => navigate(`/entry/${entry.id}`)}
-      className="entry-card-compact rounded-[28px] overflow-hidden animate-fade-in-up flex flex-col"
+      className="entry-card-compact overflow-hidden animate-fade-in-up flex flex-col"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && navigate(`/entry/${entry.id}`)}
       style={{
-        background: 'var(--bg-card)',
-        border: '1px solid var(--border-card)',
-        boxShadow: 'var(--card-shadow)',
+        background: 'transparent',
+        border: 'none',
+        boxShadow: 'none',
         animationDelay: `${index * 0.08}s`,
         animationFillMode: 'backwards',
-        padding: '16px',
+        padding: '0 0 16px 0',
         cursor: 'pointer',
         width: '100%',
-        gap: '14px',
+        gap: '12px',
       }}
     >
       {/* Thumbnail (Large aspect-square) */}
@@ -66,7 +66,7 @@ export default function DiaryEntry({ entry, index }) {
         style={{
           width: '100%',
           aspectRatio: '1 / 1',
-          borderRadius: '20px',
+          borderRadius: '16px',
           overflow: 'hidden',
           position: 'relative',
           background: 'var(--bg-card-inner)',
@@ -99,7 +99,7 @@ export default function DiaryEntry({ entry, index }) {
       </div>
 
       {/* Text content */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, padding: '0 4px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, padding: '0 16px' }}>
         {/* Day & Duration Row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', justifyContent: 'space-between' }}>
           <span

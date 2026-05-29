@@ -128,7 +128,7 @@ export default function SelfiePage() {
         <div
           className="relative flex-1 overflow-hidden"
           style={{
-            margin: '20px 20px 0',
+            margin: '20px 16px 0',
             borderRadius: '20px',
             background: 'var(--bg-card)',
           }}
@@ -206,7 +206,7 @@ export default function SelfiePage() {
 
       {/* Composite result */}
       {compositeImage && !processing && (
-        <div className="flex-1 flex flex-col" style={{ padding: '20px 20px 0' }}>
+        <div className="flex-1 flex flex-col" style={{ padding: '20px 16px 0' }}>
           <div
             className="overflow-hidden"
             style={{
@@ -258,7 +258,7 @@ export default function SelfiePage() {
 
       {/* Initial idle state */}
       {!cameraActive && !capturedImage && !processing && (
-        <div className="flex-1 flex flex-col" style={{ padding: '0 20px' }}>
+        <div className="flex-1 flex flex-col" style={{ padding: '0 16px' }}>
           {/* Upper content area */}
           <div className="flex-1 flex flex-col items-center justify-center text-center">
             {/* Lucy avatar preview */}

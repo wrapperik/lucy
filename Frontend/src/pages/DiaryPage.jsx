@@ -49,7 +49,7 @@ export default function DiaryPage() {
       )}
 
       {/* Diary entries */}
-      <div className="flex flex-col" style={{ gap: '20px', padding: '0 20px', marginTop: '20px' }}>
+      <div className="flex flex-col" style={{ gap: '20px', padding: '0', marginTop: '20px' }}>
         {entries.map((entry, index) => (
           <DiaryEntry key={entry.id} entry={entry} index={index} />
         ))}

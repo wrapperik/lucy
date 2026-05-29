@@ -332,23 +332,26 @@ function Toast({ message, type, onClose }) {
   const c = colors[type] || colors.success;
 
   return (
-    <div
-      className="flex items-center animate-fade-in-up"
-      style={{
-        gap: '10px',
-        marginBottom: '16px',
-        padding: '14px 18px',
-        borderRadius: '14px',
-        background: c.bg,
-        border: `1px solid ${c.border}`,
-      }}
-    >
-      {type === 'success' ? (
-        <CheckCircleLinear size={16} style={{ color: c.text }} />
-      ) : (
-        <ShieldWarningLinear size={16} style={{ color: c.text }} />
-      )}
-      <span style={{ fontSize: '13px', color: c.text, fontWeight: 500 }}>{message}</span>
+    <div style={{ position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
+      <div
+        className="flex items-center animate-fade-in-up"
+        style={{
+          gap: '10px',
+          padding: '14px 22px',
+          borderRadius: '99px',
+          background: c.bg === 'rgba(34,197,94,0.08)' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+          border: `1px solid ${c.border}`,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {type === 'success' ? (
+          <CheckCircleLinear size={18} style={{ color: c.text }} />
+        ) : (
+          <ShieldWarningLinear size={18} style={{ color: c.text }} />
+        )}
+        <span style={{ fontSize: '13px', color: c.text, fontWeight: 600 }}>{message}</span>
+      </div>
     </div>
   );
 }
@@ -364,6 +367,7 @@ export default function AdminPage() {
 
   // Draft entries for the form
   const [draftEntries, setDraftEntries] = useState([{ ...DEFAULT_ENTRY }]);
+  const [activeEntryIndex, setActiveEntryIndex] = useState(0);
 
   // Load entries from backend on auth
   const loadEntries = useCallback(async () => {
@@ -390,6 +394,7 @@ export default function AdminPage() {
               lockDuration: e.lockDuration || 5,
             }))
           );
+          setActiveEntryIndex(0);
         }
       }
     } catch {
@@ -423,6 +428,7 @@ export default function AdminPage() {
 
   const handleAddEntry = () => {
     setDraftEntries((prev) => [...prev, { ...DEFAULT_ENTRY }]);
+    setActiveEntryIndex(draftEntries.length);
   };
 
   const handleDeleteEntry = (index) => {
@@ -431,6 +437,14 @@ export default function AdminPage() {
         setToast({ message: 'Need at least one entry', type: 'error' });
         return prev;
       }
+      
+      // Keep activeEntryIndex valid
+      if (activeEntryIndex === index) {
+        setActiveEntryIndex(Math.max(0, index - 1));
+      } else if (activeEntryIndex > index) {
+        setActiveEntryIndex(activeEntryIndex - 1);
+      }
+      
       return prev.filter((_, i) => i !== index);
     });
   };
@@ -574,7 +588,7 @@ export default function AdminPage() {
 
   /* ── Director Console ── */
   return (
-    <div id="admin-page" className="pb-safe" style={{ padding: '28px 20px 0' }}>
+    <div id="admin-page" className="pb-safe" style={{ padding: '20px 16px 140px' }}>
       {/* Header */}
       <div
         className="flex items-start justify-between"
@@ -634,7 +648,7 @@ export default function AdminPage() {
           fontSize: '13.5px',
           color: 'var(--text-secondary)',
           lineHeight: 1.55,
-          marginBottom: '24px',
+          marginBottom: '20px',
           maxWidth: '400px',
         }}
       >
@@ -643,10 +657,11 @@ export default function AdminPage() {
       </p>
 
       {/* Action buttons */}
-      <div className="flex items-center flex-wrap" style={{ gap: '10px', marginBottom: '24px' }}>
+      <div className="flex items-center" style={{ gap: '10px', marginBottom: '24px' }}>
         <button
-          onClick={handleAddEntry}
-          className="flex items-center font-semibold transition-transform active:scale-95"
+          onClick={handleSave}
+          disabled={isSaving}
+          className="flex-1 flex items-center justify-center font-semibold transition-transform active:scale-95"
           style={{
             gap: '8px',
             padding: '12px 20px',
@@ -655,31 +670,17 @@ export default function AdminPage() {
             background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
             color: 'white',
             border: 'none',
-            boxShadow: '0 2px 12px rgba(243, 129, 85, 0.25)',
-            cursor: 'pointer',
-          }}
-        >
-          <AddCircleLinear size={16} />
-          New entry
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="flex items-center font-semibold transition-transform active:scale-95"
-          style={{
-            gap: '8px',
-            padding: '12px 20px',
-            borderRadius: '14px',
-            fontSize: '13px',
-            background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border-card)',
+            boxShadow: '0 4px 14px rgba(243, 129, 85, 0.22)',
             cursor: isSaving ? 'wait' : 'pointer',
             opacity: isSaving ? 0.6 : 1,
           }}
         >
-          {isSaving ? <StarsLinear size={15} className="animate-spin-slow" /> : <DisketteLinear size={15} />}
-          {isSaving ? 'Saving...' : 'Save'}
+          {isSaving ? (
+            <StarsLinear size={15} className="animate-spin-slow" />
+          ) : (
+            <DisketteLinear size={15} />
+          )}
+          {isSaving ? 'Saving entries...' : 'Save all changes'}
         </button>
         <button
           onClick={handleReset}
@@ -690,7 +691,7 @@ export default function AdminPage() {
             borderRadius: '14px',
             fontSize: '13px',
             background: 'var(--bg-card)',
-            color: 'var(--text-primary)',
+            color: 'var(--text-secondary)',
             border: '1px solid var(--border-card)',
             cursor: 'pointer',
           }}
@@ -699,6 +700,83 @@ export default function AdminPage() {
           Reset
         </button>
       </div>
+
+      {/* Tab Navigation */}
+      <div 
+        className="flex items-center" 
+        style={{ 
+          gap: '8px', 
+          marginBottom: '16px', 
+          overflowX: 'auto', 
+          padding: '4px 0 12px 0',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          borderBottom: '1px solid var(--border-card)'
+        }}
+      >
+        {/* Hide default scrollbar in Chrome/Safari */}
+        <style dangerouslySetInnerHTML={{__html: `
+          div::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+          }
+        `}} />
+        
+        {draftEntries.map((entry, index) => {
+          const isActive = index === activeEntryIndex;
+          const displayDay = entry.day ? `Day ${entry.day}` : `Day ${index + 1}`;
+          
+          return (
+            <button
+              key={entry._id || index}
+              onClick={() => setActiveEntryIndex(index)}
+              className="transition-all duration-300 font-semibold"
+              style={{
+                padding: '8px 16px',
+                borderRadius: '12px',
+                fontSize: '13px',
+                cursor: 'pointer',
+                fontFamily: "'Space Mono', monospace",
+                border: '1px solid ' + (isActive ? 'var(--accent)' : 'var(--border-card)'),
+                background: isActive ? 'var(--accent)' : 'var(--bg-card)',
+                color: isActive ? 'white' : 'var(--text-secondary)',
+                boxShadow: isActive ? '0 4px 12px rgba(243, 129, 85, 0.25)' : 'none',
+                flexShrink: 0,
+              }}
+            >
+              {displayDay}
+            </button>
+          );
+        })}
+        
+        {/* Add Entry Tab */}
+        <button
+          onClick={handleAddEntry}
+          className="flex items-center transition-all duration-300 font-semibold"
+          style={{
+            padding: '8px 14px',
+            borderRadius: '12px',
+            fontSize: '13px',
+            cursor: 'pointer',
+            fontFamily: "'Space Mono', monospace",
+            border: '1px dashed var(--accent)',
+            background: 'transparent',
+            color: 'var(--accent)',
+            gap: '4px',
+            flexShrink: 0,
+          }}
+        >
+          <AddCircleLinear size={14} />
+          Add Day
+        </button>
+      </div>
+
+      {/* Editing indicator */}
+      <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '20px', fontFamily: "'Space Mono', monospace", letterSpacing: '0.05em' }}>
+        EDITING ENTRY {activeEntryIndex + 1} OF {draftEntries.length}
+      </p>
 
       {/* Toast */}
       {toast && (
@@ -720,17 +798,15 @@ export default function AdminPage() {
       )}
 
       {/* Entry cards */}
-      {!isLoading && (
+      {!isLoading && draftEntries[activeEntryIndex] && (
         <div className="flex flex-col" style={{ gap: '20px' }}>
-          {draftEntries.map((entry, index) => (
-            <EntryCard
-              key={entry._id || index}
-              entry={entry}
-              index={index}
-              onChange={handleEntryChange}
-              onDelete={handleDeleteEntry}
-            />
-          ))}
+          <EntryCard
+            key={draftEntries[activeEntryIndex]._id || activeEntryIndex}
+            entry={draftEntries[activeEntryIndex]}
+            index={activeEntryIndex}
+            onChange={handleEntryChange}
+            onDelete={handleDeleteEntry}
+          />
         </div>
       )}
     </div>

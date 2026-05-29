@@ -68,7 +68,7 @@ export default function ScanPage() {
       style={{ minHeight: 'calc(100vh - var(--nav-height))' }}
     >
       {/* Header */}
-      <div style={{ padding: '28px 20px 0' }}>
+      <div style={{ padding: '28px 16px 0' }}>
         <p
           style={{
             fontSize: '10px',
@@ -100,7 +100,7 @@ export default function ScanPage() {
       </div>
 
       {/* Scanner area */}
-      <div className="flex-1 flex flex-col items-center justify-center" style={{ padding: '24px 20px' }}>
+      <div className="flex-1 flex flex-col items-center justify-center" style={{ padding: '24px 16px' }}>
         {!scanning && !result && (
           <div className="flex flex-col items-center text-center">
             <div

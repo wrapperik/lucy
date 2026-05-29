@@ -1,5 +1,4 @@
 import { useApp } from '../context/AppContext';
-import HeroAvatar from './hero/HeroAvatar';
 import HeroStatusBar from './hero/HeroStatusBar';
 import { UserLinear, LogoutLinear } from '@solar-icons/react-perf';
 
@@ -30,7 +29,7 @@ export default function HeroCard() {
         background: 'transparent',
         border: 'none',
         boxShadow: 'none',
-        padding: '16px 20px 0px',
+        padding: '16px 16px 0px',
         position: 'relative',
       }}
     >
@@ -96,45 +95,42 @@ export default function HeroCard() {
         </div>
       )}
 
-      {/* Top section: avatar + text */}
-      <div className="flex items-start gap-4" style={{ marginBottom: '20px' }}>
-        <HeroAvatar src="/lucy-avatar.png" alt="Lucy" />
-        <div className="flex-1 min-w-0 pt-0.5" style={{ paddingRight: currentUser ? '110px' : '0px' }}>
-          <p
-            style={{
-              fontSize: '10px',
-              fontWeight: 700,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--accent)',
-              fontFamily: "'Space Mono', monospace",
-              marginBottom: '6px',
-            }}
-          >
-            A VIDEO DIARY
-          </p>
-          <h1
-            style={{
-              fontFamily: "'Outfit', sans-serif",
-              color: 'var(--text-primary)',
-              fontSize: '28px',
-              fontWeight: 700,
-              lineHeight: 1.1,
-            }}
-          >
-            {currentUser ? `Hey ${currentUser.username}.` : "Hey, it's Lucy."}
-          </h1>
-          <p
-            style={{
-              fontSize: '13.5px',
-              marginTop: '6px',
-              lineHeight: 1.55,
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Scan QR codes at each location to unlock the next chapter of her story.
-          </p>
-        </div>
+      {/* Top section: header text */}
+      <div style={{ marginBottom: '20px', paddingRight: currentUser ? '110px' : '0px' }}>
+        <p
+          style={{
+            fontSize: '10px',
+            fontWeight: 700,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--accent)',
+            fontFamily: "'Space Mono', monospace",
+            marginBottom: '6px',
+          }}
+        >
+          A VIDEO DIARY
+        </p>
+        <h1
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            color: 'var(--text-primary)',
+            fontSize: '28px',
+            fontWeight: 700,
+            lineHeight: 1.1,
+          }}
+        >
+          {currentUser ? `Hey ${currentUser.username}.` : "Hey, it's Lucy."}
+        </h1>
+        <p
+          style={{
+            fontSize: '13.5px',
+            marginTop: '6px',
+            lineHeight: 1.55,
+            color: 'var(--text-secondary)',
+          }}
+        >
+          Scan QR codes at each location to unlock the next chapter of her story.
+        </p>
       </div>
 
       <HeroStatusBar timeStr={timeStr} unlockedCount={unlockedCount} totalEntries={totalEntries} />

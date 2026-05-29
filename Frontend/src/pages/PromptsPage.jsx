@@ -9,7 +9,7 @@ export default function PromptsPage() {
   const cameraEntries = entries.filter(e => e.lockType === 'camera');
 
   return (
-    <div id="prompts-page" className="pb-safe" style={{ padding: '28px 20px 0' }}>
+    <div id="prompts-page" className="pb-safe" style={{ padding: '28px 16px 0' }}>
       {/* Header */}
       <div className="animate-fade-in-up" style={{ marginBottom: '28px' }}>
         <p

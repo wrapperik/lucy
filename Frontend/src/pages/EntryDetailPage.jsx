@@ -105,7 +105,7 @@ export default function EntryDetailPage() {
   return (
     <div className="detail-page pb-safe animate-slide-in">
       {/* Back button */}
-      <div style={{ padding: '16px 20px 0' }}>
+      <div style={{ padding: '16px 16px 0' }}>
         <button
           onClick={() => navigate('/')}
           className="flex items-center justify-center transition-transform active:scale-90"
@@ -128,7 +128,7 @@ export default function EntryDetailPage() {
       {/* Header section */}
       <div
         className="animate-fade-in-up"
-        style={{ padding: '20px 24px 0', textAlign: 'center' }}
+        style={{ padding: '20px 16px 0', textAlign: 'center' }}
       >
         {/* Day label */}
         <p
@@ -211,7 +211,7 @@ export default function EntryDetailPage() {
       </div>
 
       {/* Content area */}
-      <div style={{ padding: '0 20px' }}>
+      <div style={{ padding: '0 16px' }}>
         {unlocked ? (
           <>
             {/* Hero thumbnail */}
