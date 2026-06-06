@@ -12,13 +12,13 @@ export default function HeroCard() {
   });
 
   const totalEntries = entries.length;
-  const unlockedCount = unlockedEntries.length;
+  const unlockedCount = entries.filter(e => unlockedEntries.includes(String(e.id))).length;
 
   const handleLogout = () => {
     // Reset dismissal state so they can log back in
     localStorage.removeItem('lucy-auth-dismissed');
     logoutUser();
-    window.location.reload();
+    window.location.href = '/';
   };
 
   return (

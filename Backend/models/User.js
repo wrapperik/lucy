@@ -23,6 +23,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '/lucy-avatar.png',
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
     unlockedEntries: {
       type: [String],
       default: [],

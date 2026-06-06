@@ -12,10 +12,15 @@ function hashPassword(password) {
 /* ── POST /api/auth/register ── */
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role, adminCode } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Validate admin code if trying to register as admin
+    if (role === 'admin' && adminCode !== 'lucy') {
+      return res.status(400).json({ error: 'Invalid admin registration code' });
     }
 
     // Check if user exists
@@ -29,6 +34,7 @@ router.post('/register', async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      role: role || 'user',
       unlockedEntries: [],
     });
 
@@ -37,6 +43,7 @@ router.post('/register', async (req, res) => {
       id: user._id,
       username: user.username,
       email: user.email,
+      role: user.role,
       avatar: user.avatar,
       unlockedEntries: user.unlockedEntries,
     };
@@ -72,6 +79,7 @@ router.post('/login', async (req, res) => {
       id: user._id,
       username: user.username,
       email: user.email,
+      role: user.role,
       avatar: user.avatar,
       unlockedEntries: user.unlockedEntries,
     };

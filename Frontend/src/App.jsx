@@ -7,6 +7,7 @@ import SelfiePage from './pages/SelfiePage';
 import ScanPage from './pages/ScanPage';
 import PromptsPage from './pages/PromptsPage';
 import AdminPage from './pages/AdminPage';
+import SettingsPage from './pages/SettingsPage';
 import EntryDetailPage from './pages/EntryDetailPage';
 
 // Import New UX Screens
@@ -19,6 +20,7 @@ import ScrollToTop from './components/ScrollToTop';
 function MainApp() {
   const location = useLocation();
   const hideNav = location.pathname.startsWith('/entry/');
+  const { isAdmin } = useApp();
 
   return (
     <div className="relative min-h-screen corner-glow w-full max-w-lg">
@@ -29,7 +31,8 @@ function MainApp() {
           <Route path="/selfie" element={<SelfiePage />} />
           <Route path="/scan" element={<ScanPage />} />
           <Route path="/prompts" element={<PromptsPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/admin" element={isAdmin ? <AdminPage /> : <SettingsPage />} />
         </Routes>
       </main>
       {!hideNav && <BottomNav />}
@@ -45,20 +48,10 @@ function AppContent() {
     cameraPermissionGranted,
   } = useApp();
 
-  // Track state of auth dismissal (for guest skip option)
-  const [authDismissed, setAuthDismissed] = useState(() => {
-    return localStorage.getItem('lucy-auth-dismissed') === 'true';
-  });
-
   // Track state of temporary permission skip (if user cancels / says maybe later)
   const [permissionPromptDismissed, setPermissionPromptDismissed] = useState(() => {
     return localStorage.getItem('lucy-permission-dismissed') === 'true';
   });
-
-  const handleAuthComplete = () => {
-    setAuthDismissed(true);
-    localStorage.setItem('lucy-auth-dismissed', 'true');
-  };
 
   const handlePermissionComplete = () => {
     setPermissionPromptDismissed(true);
@@ -75,9 +68,9 @@ function AppContent() {
     return <OnboardingScreen />;
   }
 
-  // 3. Create Profile / Sign In
-  if (!currentUser && !authDismissed) {
-    return <AuthScreen onComplete={handleAuthComplete} />;
+  // 3. Create Profile / Sign In (mandatory — no guest bypass)
+  if (!currentUser) {
+    return <AuthScreen />;
   }
 
   // 4. Soft Camera Permissions Request
