@@ -8,11 +8,6 @@ const leftItems = [
   { to: '/selfie', icon: StarsLinear, label: 'Selfie' },
 ];
 
-const rightItems = [
-  { to: '/prompts', icon: CameraLinear, label: 'Prompts' },
-  { to: '/admin', icon: SettingsLinear, label: 'Admin' },
-];
-
 function NavItem({ to, icon: Icon, label }) {
   return (
     <NavLink
@@ -63,6 +58,11 @@ export default function BottomNav() {
   const location = useLocation();
   const containerRef = useRef(null);
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, height: 0, top: 0, opacity: 0 });
+
+  const rightItems = [
+    { to: '/prompts', icon: CameraLinear, label: 'Prompts' },
+    { to: '/settings', icon: SettingsLinear, label: 'Settings' },
+  ];
 
   useEffect(() => {
     const updatePill = () => {

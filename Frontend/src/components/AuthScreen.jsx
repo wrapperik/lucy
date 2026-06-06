@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { LockLinear, LetterLinear, UserLinear, StarsLinear, CheckCircleLinear, ShieldWarningLinear, AltArrowRightLinear, Book2Linear } from '@solar-icons/react-perf';
 
-export default function AuthScreen({ onComplete }) {
+export default function AuthScreen() {
   const { registerUser, loginUser } = useApp();
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -13,6 +13,8 @@ export default function AuthScreen({ onComplete }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user');
+  const [adminCode, setAdminCode] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,12 +28,16 @@ export default function AuthScreen({ onComplete }) {
           setLoading(false);
           return;
         }
-        const res = await registerUser(username, email, password);
+        if (role === 'admin' && !adminCode) {
+          setError('Please enter the Director Verification Code');
+          setLoading(false);
+          return;
+        }
+        const res = await registerUser(username, email, password, role, adminCode);
         if (res.success) {
+          window.history.replaceState({}, '', '/');
           setSuccess(true);
-          setTimeout(() => {
-            if (onComplete) onComplete();
-          }, 1500);
+          // currentUser is set in context → App.jsx re-renders past the auth gate
         } else {
           setError(res.error);
         }
@@ -43,10 +49,9 @@ export default function AuthScreen({ onComplete }) {
         }
         const res = await loginUser(email, password);
         if (res.success) {
+          window.history.replaceState({}, '', '/');
           setSuccess(true);
-          setTimeout(() => {
-            if (onComplete) onComplete();
-          }, 1500);
+          // currentUser is set in context → App.jsx re-renders past the auth gate
         } else {
           setError(res.error);
         }
@@ -116,7 +121,7 @@ export default function AuthScreen({ onComplete }) {
             marginBottom: '6px',
           }}
         >
-          {isSignUp ? 'Create your profile' : 'Sign in to Lucy'}
+          {isSignUp ? 'Create your profile' : 'Welcome to Lucy'}
         </h2>
 
         <p
@@ -127,12 +132,91 @@ export default function AuthScreen({ onComplete }) {
           }}
         >
           {isSignUp
-            ? 'Track your journey and synchronize your progress with MongoDB Atlas.'
-            : 'Access your unlocked diary entries and selfies from any device.'}
+            ? 'Set up your account to save and synchronize your journey progress.'
+            : 'Sign in to access your diary entries and continue where you left off.'}
         </p>
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {/* Role Selector (Sign Up only) */}
+          {isSignUp && (
+            <div style={{
+              display: 'flex',
+              background: 'var(--bg-card-inner)',
+              border: '1px solid var(--border-card)',
+              borderRadius: '12px',
+              padding: '4px',
+              marginBottom: '4px',
+              width: '100%',
+            }}>
+              <button
+                type="button"
+                onClick={() => { setRole('user'); setError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '9px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: role === 'user' ? 'linear-gradient(135deg, var(--accent-light), var(--accent))' : 'transparent',
+                  color: role === 'user' ? 'white' : 'var(--text-secondary)',
+                  boxShadow: role === 'user' ? '0 2px 8px rgba(243, 129, 85, 0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                Traveler
+              </button>
+              <button
+                type="button"
+                onClick={() => { setRole('admin'); setError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '9px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: role === 'admin' ? 'linear-gradient(135deg, var(--accent-light), var(--accent))' : 'transparent',
+                  color: role === 'admin' ? 'white' : 'var(--text-secondary)',
+                  boxShadow: role === 'admin' ? '0 2px 8px rgba(243, 129, 85, 0.2)' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                Director
+              </button>
+            </div>
+          )}
+
+          {/* Director Verification Code (Sign Up + Admin only) */}
+          {isSignUp && role === 'admin' && (
+            <div style={{ position: 'relative', width: '100%' }}>
+              <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
+                <LockLinear size={16} />
+              </span>
+              <input
+                type="password"
+                placeholder="Director Verification Code"
+                value={adminCode}
+                onChange={(e) => setAdminCode(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px 14px 44px',
+                  borderRadius: '14px',
+                  fontSize: '14px',
+                  background: 'var(--bg-card-inner)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-card)',
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                }}
+              />
+            </div>
+          )}
+
+          {/* Username (Sign Up only) */}
           {isSignUp && (
             <div style={{ position: 'relative', width: '100%' }}>
               <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
@@ -158,6 +242,7 @@ export default function AuthScreen({ onComplete }) {
             </div>
           )}
 
+          {/* Email / Username */}
           <div style={{ position: 'relative', width: '100%' }}>
             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
               <LetterLinear size={16} />
@@ -181,6 +266,7 @@ export default function AuthScreen({ onComplete }) {
             />
           </div>
 
+          {/* Password */}
           <div style={{ position: 'relative', width: '100%' }}>
             <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
               <LockLinear size={16} />
@@ -241,7 +327,7 @@ export default function AuthScreen({ onComplete }) {
               }}
             >
               <CheckCircleLinear size={14} style={{ flexShrink: 0 }} />
-              <span>Success! Synchronizing profile...</span>
+              <span>Success! Loading your journey...</span>
             </div>
           )}
 
@@ -279,6 +365,8 @@ export default function AuthScreen({ onComplete }) {
           onClick={() => {
             setIsSignUp(!isSignUp);
             setError('');
+            setRole('user');
+            setAdminCode('');
           }}
           style={{
             background: 'none',
@@ -291,22 +379,6 @@ export default function AuthScreen({ onComplete }) {
           }}
         >
           {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
-        </button>
-
-        {/* Guest Skip */}
-        <button
-          onClick={onComplete}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '13px',
-            fontWeight: 500,
-            color: 'var(--text-muted)',
-            cursor: 'pointer',
-            marginTop: '12px',
-          }}
-        >
-          Continue as Guest
         </button>
       </div>
     </div>

@@ -2,6 +2,19 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
 import { LockLinear, LogoutLinear, AddCircleLinear, DisketteLinear, RestartLinear, TrashBinTrashLinear, CheckCircleLinear, ShieldWarningLinear, StarsLinear, DownloadLinear, PrinterLinear, CopyLinear } from '@solar-icons/react-perf';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import {
+  AddCircleLinear,
+  DisketteLinear,
+  RestartLinear,
+  TrashBinTrashLinear,
+  CheckCircleLinear,
+  ShieldWarningLinear,
+  StarsLinear,
+  AltArrowLeftLinear
+} from '@solar-icons/react-perf';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -22,11 +35,8 @@ const DEFAULT_ENTRY = {
   recordedAt: '',
   triggerType: 'none',
   triggerHint: 'Available now',
-  // QR-specific
   qrCode: '',
-  // Camera-specific
   cameraPrompt: '',
-  // Time-specific
   lockDuration: 5,
   // Free-text breadcrumb pointing players to the NEXT entry's IRL location
   nextLocationHint: '',
@@ -604,7 +614,7 @@ function Toast({ message, type, onClose }) {
           gap: '10px',
           padding: '14px 22px',
           borderRadius: '99px',
-          background: c.bg === 'rgba(34,197,94,0.08)' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+          background: 'rgba(255, 255, 255, 0.95)',
           border: `1px solid ${c.border}`,
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
           whiteSpace: 'nowrap',
@@ -623,9 +633,8 @@ function Toast({ message, type, onClose }) {
 
 /* ── Main Admin Page ── */
 export default function AdminPage() {
-  const { isAdmin, loginAdmin, refreshEntries } = useApp();
-  const [passphrase, setPassphrase] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { refreshEntries } = useApp();
   const [toast, setToast] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -634,7 +643,7 @@ export default function AdminPage() {
   const [draftEntries, setDraftEntries] = useState([{ ...DEFAULT_ENTRY }]);
   const [activeEntryIndex, setActiveEntryIndex] = useState(0);
 
-  // Load entries from backend on auth
+  // Load entries from backend
   const loadEntries = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -671,18 +680,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (isAdmin) loadEntries();
-  }, [isAdmin, loadEntries]);
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (loginAdmin(passphrase)) {
-      setError('');
-    } else {
-      setError('Wrong passphrase');
-      setPassphrase('');
-    }
-  };
+    loadEntries();
+  }, [loadEntries]);
 
   const handleEntryChange = (index, updatedEntry) => {
     setDraftEntries((prev) => {
@@ -703,14 +702,14 @@ export default function AdminPage() {
         setToast({ message: 'Need at least one entry', type: 'error' });
         return prev;
       }
-      
+
       // Keep activeEntryIndex valid
       if (activeEntryIndex === index) {
         setActiveEntryIndex(Math.max(0, index - 1));
       } else if (activeEntryIndex > index) {
         setActiveEntryIndex(activeEntryIndex - 1);
       }
-      
+
       return prev.filter((_, i) => i !== index);
     });
   };
@@ -768,90 +767,6 @@ export default function AdminPage() {
     setToast({ message: 'Reloaded from server.', type: 'success' });
   };
 
-  /* ── Login Screen ── */
-  if (!isAdmin) {
-    return (
-      <div
-        id="admin-page"
-        className="pb-safe flex flex-col items-center justify-center text-center"
-        style={{ minHeight: 'calc(100vh - var(--nav-height))', padding: '0 28px' }}
-      >
-        <div
-          className="flex items-center justify-center animate-float"
-          style={{
-            width: '68px',
-            height: '68px',
-            borderRadius: '20px',
-            background: 'var(--accent-glow)',
-            border: '1px solid var(--accent-glow-strong)',
-            marginBottom: '22px',
-          }}
-        >
-          <LockLinear size={30} style={{ color: 'var(--accent)' }} />
-        </div>
-        <h1
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            color: 'var(--text-primary)',
-            fontSize: '26px',
-            fontWeight: 700,
-            marginBottom: '8px',
-          }}
-        >
-          Admin only
-        </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '36px' }}>
-          This is where you upload Lucy's diary entries.
-        </p>
-
-        <form
-          onSubmit={handleLogin}
-          className="w-full flex"
-          style={{ maxWidth: '320px', gap: '10px' }}
-        >
-          <input
-            type="password"
-            value={passphrase}
-            onChange={(e) => {
-              setPassphrase(e.target.value);
-              setError('');
-            }}
-            placeholder="Passphrase"
-            style={{
-              flex: 1,
-              padding: '14px 18px',
-              borderRadius: '14px',
-              fontSize: '14px',
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              border: `1px solid ${error ? 'rgba(239,68,68,0.5)' : 'var(--border-card)'}`,
-              fontFamily: 'inherit',
-            }}
-          />
-          <button
-            type="submit"
-            className="font-semibold transition-transform active:scale-95"
-            style={{
-              padding: '14px 22px',
-              borderRadius: '14px',
-              fontSize: '14px',
-              background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
-              color: 'white',
-              border: 'none',
-              boxShadow: '0 2px 10px rgba(243, 129, 85, 0.25)',
-              cursor: 'pointer',
-            }}
-          >
-            Enter
-          </button>
-        </form>
-        {error && (
-          <p style={{ fontSize: '12px', marginTop: '14px', color: '#ef4444' }}>{error}</p>
-        )}
-      </div>
-    );
-  }
-
   /* ── Director Console ── */
   return (
     <div id="admin-page" className="pb-safe" style={{ padding: '20px 16px 140px' }}>
@@ -887,13 +802,10 @@ export default function AdminPage() {
           </h1>
         </div>
         <button
-          onClick={() => {
-            localStorage.removeItem('lucy-admin');
-            window.location.reload();
-          }}
+          onClick={() => navigate('/settings')}
           className="flex items-center transition-transform active:scale-95"
           style={{
-            gap: '8px',
+            gap: '6px',
             padding: '10px 16px',
             borderRadius: '12px',
             fontSize: '13px',
@@ -903,8 +815,8 @@ export default function AdminPage() {
             cursor: 'pointer',
           }}
         >
-          <LogoutLinear size={14} />
-          Sign out
+          <AltArrowLeftLinear size={14} />
+          Settings
         </button>
       </div>
 
@@ -968,12 +880,12 @@ export default function AdminPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div 
-        className="flex items-center" 
-        style={{ 
-          gap: '8px', 
-          marginBottom: '16px', 
-          overflowX: 'auto', 
+      <div
+        className="flex items-center"
+        style={{
+          gap: '8px',
+          marginBottom: '16px',
+          overflowX: 'auto',
           padding: '4px 0 12px 0',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -989,11 +901,11 @@ export default function AdminPage() {
             background: transparent !important;
           }
         `}} />
-        
+
         {draftEntries.map((entry, index) => {
           const isActive = index === activeEntryIndex;
           const displayDay = entry.day ? `Day ${entry.day}` : `Day ${index + 1}`;
-          
+
           return (
             <button
               key={entry._id || index}
@@ -1016,7 +928,7 @@ export default function AdminPage() {
             </button>
           );
         })}
-        
+
         {/* Add Entry Tab */}
         <button
           onClick={handleAddEntry}

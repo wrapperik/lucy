@@ -133,6 +133,18 @@ export function AppProvider({ children }) {
     return localStorage.getItem('lucy-admin') === 'true';
   });
 
+  // Sync isAdmin with currentUser role
+  useEffect(() => {
+    if (currentUser) {
+      const isUserAdmin = currentUser.role === 'admin';
+      setIsAdmin(isUserAdmin);
+      localStorage.setItem('lucy-admin', isUserAdmin ? 'true' : 'false');
+    } else {
+      const savedAdmin = localStorage.getItem('lucy-admin') === 'true';
+      setIsAdmin(savedAdmin);
+    }
+  }, [currentUser]);
+
   // Selfie photos taken
   const [selfies, setSelfies] = useState(() => {
     const saved = localStorage.getItem('lucy-selfies');
@@ -232,16 +244,6 @@ export function AppProvider({ children }) {
     return { success: false, entry: null };
   }, [entries, unlockEntry]);
 
-  // Admin login
-  const loginAdmin = useCallback((passphrase) => {
-    if (passphrase.toLowerCase() === 'lucy') {
-      setIsAdmin(true);
-      localStorage.setItem('lucy-admin', 'true');
-      return true;
-    }
-    return false;
-  }, []);
-
   // Save selfie
   const saveSelfie = useCallback((imageData) => {
     const newSelfies = [...selfies, { id: Date.now(), image: imageData, timestamp: new Date().toISOString() }];
@@ -273,12 +275,12 @@ export function AppProvider({ children }) {
   }, []);
 
   // Register User
-  const registerUser = useCallback(async (username, email, password) => {
+  const registerUser = useCallback(async (username, email, password, role = 'user', adminCode = '') => {
     try {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password })
+        body: JSON.stringify({ username, email, password, role, adminCode })
       });
       const data = await res.json();
       if (!res.ok) {
@@ -326,6 +328,8 @@ export function AppProvider({ children }) {
   const logoutUser = useCallback(() => {
     setCurrentUser(null);
     localStorage.removeItem('lucy-user');
+    localStorage.removeItem('lucy-admin');
+    setIsAdmin(false);
     // Keep local unlocks or reset to defaults
     const defaults = staticEntries.filter(e => e.lockType === 'none').map(e => String(e.id));
     setUnlockedEntries(defaults);
@@ -356,7 +360,6 @@ export function AppProvider({ children }) {
     tryQrUnlock,
     scannedCodes,
     isAdmin,
-    loginAdmin,
     selfies,
     saveSelfie,
   };

@@ -210,32 +210,9 @@ export default function EntryDetailPage() {
         </div>
       </div>
 
-      {/* Content area */}
       <div style={{ padding: '0 16px' }}>
         {unlocked ? (
           <>
-            {/* Hero thumbnail */}
-            <div
-              className="animate-fade-scale"
-              style={{
-                borderRadius: '20px',
-                overflow: 'hidden',
-                marginBottom: '20px',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-              }}
-            >
-              <img
-                src={entry.thumbnail}
-                alt={entry.title}
-                style={{
-                  width: '100%',
-                  display: 'block',
-                  objectFit: 'cover',
-                  maxHeight: '320px',
-                }}
-              />
-            </div>
-
             {/* YouTube embed */}
             {youtubeId && (
               <div
@@ -248,7 +225,7 @@ export default function EntryDetailPage() {
                 }}
               >
                 <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`}
+                  src={`https://www.youtube-nocookie.com/embed/${youtubeId}?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&color=white`}
                   title={entry.title}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

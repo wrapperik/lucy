@@ -15,7 +15,7 @@ const STEPS = [
   },
   {
     title: "Selfie with Lucy",
-    description: "Visit her locations and take a selfie. Through ambient AI compositing, Lucy will gently join your photos — documenting that you were there too.",
+    description: "Visit her locations and take a selfie. Lucy will gently join your photos — documenting that you were there too.",
     icon: <StarsLinear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
   },
 ];
@@ -74,9 +74,9 @@ export default function OnboardingScreen() {
         }}
       >
         {/* Top logo */}
-        <div 
-          style={{ 
-            display: 'flex', 
+        <div
+          style={{
+            display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             flexShrink: 0
