@@ -1,14 +1,49 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ScanLine, X, CheckCircle, XCircle, QrCode } from 'lucide-react';
 
+/**
+ * Extract the QR payload from either a raw value (e.g. "LUCY-DAY02-WALK")
+ * or a deep-link URL like "https://app/scan?code=LUCY-DAY02-WALK".
+ */
+function extractCode(scanned) {
+  if (!scanned) return scanned;
+  try {
+    const u = new URL(scanned);
+    const c = u.searchParams.get('code');
+    if (c) return c;
+  } catch {
+    // not a URL, treat raw
+  }
+  return scanned;
+}
+
 export default function ScanPage() {
-  const { tryQrUnlock } = useApp();
+  const { tryQrUnlock, entries } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null); // { success, entry }
   const scannerRef = useRef(null);
   const containerRef = useRef(null);
+
+  // Auto-unlock when arriving via a deep-link QR (e.g. /scan?code=LUCY-DAY02).
+  // Wait until entries are loaded so tryQrUnlock can find a match.
+  useEffect(() => {
+    const codeParam = searchParams.get('code');
+    if (!codeParam || entries.length === 0) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const unlockResult = tryQrUnlock(extractCode(codeParam));
+      setResult(unlockResult);
+      const next = new URLSearchParams(searchParams);
+      next.delete('code');
+      setSearchParams(next, { replace: true });
+    });
+    return () => { cancelled = true; };
+  }, [searchParams, entries, tryQrUnlock, setSearchParams]);
 
   const startScanner = async () => {
     setResult(null);
@@ -24,8 +59,9 @@ export default function ScanPage() {
           aspectRatio: 1.0,
         },
         (decodedText) => {
-          // QR code successfully scanned
-          const unlockResult = tryQrUnlock(decodedText);
+          // QR code successfully scanned — strip wrapping URL if present
+          const code = extractCode(decodedText);
+          const unlockResult = tryQrUnlock(code);
           setResult(unlockResult);
           stopScanner();
         },

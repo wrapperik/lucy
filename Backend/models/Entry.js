@@ -63,6 +63,13 @@ const entrySchema = new mongoose.Schema(
       type: Number,
       default: 5,
     },
+    // Free-text breadcrumb shown after the user finishes this entry,
+    // hinting where they'll find the NEXT diary entry in the real world.
+    nextLocationHint: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   {
     timestamps: true,

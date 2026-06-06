@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
-import { LockLinear, LogoutLinear, AddCircleLinear, DisketteLinear, RestartLinear, TrashBinTrashLinear, CheckCircleLinear, ShieldWarningLinear, StarsLinear } from '@solar-icons/react-perf';
+import { LockLinear, LogoutLinear, AddCircleLinear, DisketteLinear, RestartLinear, TrashBinTrashLinear, CheckCircleLinear, ShieldWarningLinear, StarsLinear, DownloadLinear, PrinterLinear, CopyLinear } from '@solar-icons/react-perf';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -27,6 +28,8 @@ const DEFAULT_ENTRY = {
   cameraPrompt: '',
   // Time-specific
   lockDuration: 5,
+  // Free-text breadcrumb pointing players to the NEXT entry's IRL location
+  nextLocationHint: '',
 };
 
 /* ── Inline styles ── */
@@ -98,6 +101,211 @@ const styles = {
     gap: '14px',
   },
 };
+
+/* ── QR Code Preview Block ──
+   Renders the QR encoding a deep-link URL that opens /scan?code=<value>.
+   Supports download (PNG), print (clean A6-ish page), copy URL. */
+function QrCodeBlock({ entry, qrValue }) {
+  const canvasRef = useRef(null);
+  const [dataUrl, setDataUrl] = useState('');
+
+  // Build the deep-link URL: scanning with any phone camera opens the app
+  // and auto-unlocks the matching entry via ScanPage's ?code= handler.
+  const deepLink =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/scan?code=${encodeURIComponent(qrValue)}`
+      : '';
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!qrValue || !canvasRef.current) {
+      queueMicrotask(() => { if (!cancelled) setDataUrl(''); });
+      return () => { cancelled = true; };
+    }
+    (async () => {
+      try {
+        await QRCode.toCanvas(canvasRef.current, deepLink, {
+          width: 280,
+          margin: 2,
+          errorCorrectionLevel: 'H',
+          color: { dark: '#1a1a1a', light: '#ffffff' },
+        });
+        const url = await QRCode.toDataURL(deepLink, {
+          width: 1024,
+          margin: 2,
+          errorCorrectionLevel: 'H',
+        });
+        if (!cancelled) setDataUrl(url);
+      } catch (err) {
+        console.warn('QR render error:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [qrValue, deepLink]);
+
+  const downloadPng = () => {
+    if (!dataUrl) return;
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `lucy-day${entry.day || 'x'}-${qrValue}.png`;
+    a.click();
+  };
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(deepLink);
+    } catch {
+      // ignore; older browsers
+    }
+  };
+
+  const printQr = () => {
+    if (!dataUrl) return;
+    const w = window.open('', 'qrPrint', 'width=720,height=900');
+    if (!w) return;
+    const dayLabel = entry.day ? `Day ${String(entry.day).padStart(2, '0')}` : 'Lucy';
+    const title = entry.title || 'Lucy\'s diary';
+    w.document.write(`<!doctype html>
+<html><head><meta charset="utf-8" />
+<title>QR — ${dayLabel}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Outfit','Helvetica',sans-serif;color:#1a1a1a;background:#fff;padding:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
+  .tag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#f38155;margin-bottom:10px;}
+  h1{font-size:28px;font-weight:700;margin-bottom:6px;text-align:center;}
+  .subtitle{font-size:14px;color:#555;margin-bottom:28px;text-align:center;}
+  img{width:340px;height:340px;border:1px solid #eee;padding:14px;background:#fff;border-radius:18px;}
+  .code{margin-top:18px;font-family:'Space Mono',monospace;font-size:13px;color:#444;}
+  .hint{margin-top:30px;font-size:13px;color:#777;max-width:340px;text-align:center;line-height:1.5;}
+  @media print { body{padding:0;} .noprint{display:none;} }
+</style></head>
+<body>
+  <p class="tag">${dayLabel}</p>
+  <h1>${title.replace(/</g, '&lt;')}</h1>
+  <p class="subtitle">Scan to unlock this diary entry.</p>
+  <img src="${dataUrl}" alt="QR code" />
+  <p class="code">${qrValue}</p>
+  <p class="hint">Point any phone camera at this code. The Lucy app will open and reveal the entry.</p>
+</body></html>`);
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
+  };
+
+  if (!qrValue) {
+    return (
+      <div
+        style={{
+          marginTop: '12px',
+          padding: '14px 16px',
+          borderRadius: '12px',
+          background: 'var(--bg-card-inner)',
+          border: '1px dashed var(--border-card)',
+          fontSize: '12px',
+          color: 'var(--text-muted)',
+          textAlign: 'center',
+        }}
+      >
+        Enter a QR code value above to generate a scannable code.
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        marginTop: '16px',
+        padding: '20px',
+        borderRadius: '16px',
+        background: 'white',
+        border: '1px solid var(--border-card)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          maxWidth: '100%',
+          height: 'auto',
+          borderRadius: '8px',
+          background: 'white',
+        }}
+      />
+      <div
+        style={{
+          marginTop: '14px',
+          fontSize: '11px',
+          color: '#666',
+          fontFamily: "'Space Mono', monospace",
+          wordBreak: 'break-all',
+          textAlign: 'center',
+          maxWidth: '280px',
+        }}
+      >
+        {deepLink}
+      </div>
+      <div className="flex" style={{ gap: '8px', marginTop: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button
+          type="button"
+          onClick={downloadPng}
+          className="flex items-center font-semibold transition-transform active:scale-95"
+          style={{
+            gap: '6px',
+            padding: '10px 16px',
+            borderRadius: '10px',
+            fontSize: '12px',
+            background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(243, 129, 85, 0.20)',
+          }}
+        >
+          <DownloadLinear size={14} />
+          Download PNG
+        </button>
+        <button
+          type="button"
+          onClick={printQr}
+          className="flex items-center font-semibold transition-transform active:scale-95"
+          style={{
+            gap: '6px',
+            padding: '10px 16px',
+            borderRadius: '10px',
+            fontSize: '12px',
+            background: 'var(--bg-card)',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--border-card)',
+            cursor: 'pointer',
+          }}
+        >
+          <PrinterLinear size={14} />
+          Print
+        </button>
+        <button
+          type="button"
+          onClick={copyUrl}
+          className="flex items-center font-semibold transition-transform active:scale-95"
+          style={{
+            gap: '6px',
+            padding: '10px 16px',
+            borderRadius: '10px',
+            fontSize: '12px',
+            background: 'var(--bg-card)',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--border-card)',
+            cursor: 'pointer',
+          }}
+        >
+          <CopyLinear size={14} />
+          Copy link
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /* ── Entry Card Component ── */
 function EntryCard({ entry, index, onChange, onDelete }) {
@@ -277,13 +485,40 @@ function EntryCard({ entry, index, onChange, onDelete }) {
         {entry.triggerType === 'qr' && (
           <div>
             <label style={styles.label}>QR Code Value</label>
-            <input
-              type="text"
-              value={entry.qrCode}
-              onChange={(e) => handleChange('qrCode', e.target.value)}
-              placeholder="LUCY-DAY02-WALK"
-              style={styles.input}
-            />
+            <div className="flex" style={{ gap: '8px' }}>
+              <input
+                type="text"
+                value={entry.qrCode}
+                onChange={(e) => handleChange('qrCode', e.target.value)}
+                placeholder="Auto-generate or type a code"
+                style={{ ...styles.input, flex: 1 }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const day = entry.day ? String(entry.day).padStart(2, '0') : 'XX';
+                  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+                  handleChange('qrCode', `LUCY-DAY${day}-${rand}`);
+                }}
+                className="flex items-center font-semibold transition-transform active:scale-95"
+                style={{
+                  gap: '6px',
+                  padding: '0 16px',
+                  borderRadius: '14px',
+                  fontSize: '12px',
+                  whiteSpace: 'nowrap',
+                  background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(243, 129, 85, 0.20)',
+                  flexShrink: 0,
+                }}
+              >
+                Generate
+              </button>
+            </div>
+            <QrCodeBlock entry={entry} qrValue={entry.qrCode} />
           </div>
         )}
 
@@ -313,6 +548,36 @@ function EntryCard({ entry, index, onChange, onDelete }) {
             />
           </div>
         )}
+      </div>
+
+      {/* Next-entry location breadcrumb */}
+      <div
+        style={{
+          marginTop: '18px',
+          padding: '20px 18px',
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, var(--accent-glow), transparent)',
+          border: '1px dashed var(--accent-glow-strong)',
+        }}
+      >
+        <label style={styles.label}>Where to find the NEXT entry</label>
+        <p
+          style={{
+            fontSize: '12px',
+            color: 'var(--text-muted)',
+            marginTop: '-4px',
+            marginBottom: '10px',
+            lineHeight: 1.5,
+          }}
+        >
+          Shown to the viewer once they finish this entry, as a clue toward the next IRL location.
+        </p>
+        <textarea
+          value={entry.nextLocationHint || ''}
+          onChange={(e) => handleChange('nextLocationHint', e.target.value)}
+          placeholder="Try the old willow tree behind the library. She left something taped under the bench."
+          style={{ ...styles.textarea, minHeight: '90px' }}
+        />
       </div>
     </div>
   );
@@ -392,6 +657,7 @@ export default function AdminPage() {
               qrCode: e.qrCode || '',
               cameraPrompt: e.cameraPrompt || '',
               lockDuration: e.lockDuration || 5,
+              nextLocationHint: e.nextLocationHint || '',
             }))
           );
           setActiveEntryIndex(0);

@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Camera, Download, RotateCcw, X, Sparkles } from 'lucide-react';
+import { Camera, Download, RotateCcw, X, Sparkles, AlertTriangle } from 'lucide-react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 export default function SelfiePage() {
   const { saveSelfie } = useApp();
@@ -9,6 +11,7 @@ export default function SelfiePage() {
   const [processing, setProcessing] = useState(false);
   const [compositeImage, setCompositeImage] = useState(null);
   const [facingMode, setFacingMode] = useState('user');
+  const [error, setError] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -37,41 +40,28 @@ export default function SelfiePage() {
     setCameraActive(false);
   }, []);
 
-  const composeLucy = useCallback((selfieData) => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const selfieImg = new Image();
-    selfieImg.onload = () => {
-      canvas.width = selfieImg.width;
-      canvas.height = selfieImg.height;
-      ctx.drawImage(selfieImg, 0, 0);
-      const lucyImg = new Image();
-      lucyImg.crossOrigin = 'anonymous';
-      lucyImg.onload = () => {
-        const lucySize = Math.min(canvas.width, canvas.height) * 0.35;
-        const x = canvas.width - lucySize - 20;
-        const y = canvas.height - lucySize - 20;
-        ctx.save();
-        ctx.globalAlpha = 0.88;
-        ctx.beginPath();
-        ctx.arc(x + lucySize / 2, y + lucySize / 2, lucySize / 2, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(lucyImg, x, y, lucySize, lucySize);
-        ctx.restore();
-        ctx.beginPath();
-        ctx.arc(x + lucySize / 2, y + lucySize / 2, lucySize / 2 + 2, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(243, 129, 85, 0.6)';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        const result = canvas.toDataURL('image/jpeg', 0.9);
-        setCompositeImage(result);
-        setProcessing(false);
-        saveSelfie(result);
-      };
-      lucyImg.src = '/lucy-avatar.png';
-    };
-    selfieImg.src = selfieData;
+  // Send selfie to backend, which calls Gemini 3 Pro image gen to insert
+  // Lucy into the photo as a hyper-realistic friend standing next to the user.
+  const composeLucy = useCallback(async (selfieData) => {
+    setError(null);
+    try {
+      const res = await fetch(`${API_URL}/selfie/compose`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: selfieData }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.image) {
+        throw new Error(data.error || 'Gemini did not return an image.');
+      }
+      setCompositeImage(data.image);
+      saveSelfie(data.image);
+    } catch (err) {
+      console.error('Selfie compose failed:', err);
+      setError(err.message || 'Could not generate selfie.');
+    } finally {
+      setProcessing(false);
+    }
   }, [saveSelfie]);
 
   const capturePhoto = useCallback(() => {
@@ -90,7 +80,7 @@ export default function SelfiePage() {
     setCapturedImage(imageData);
     stopCamera();
     setProcessing(true);
-    setTimeout(() => composeLucy(imageData), 2000);
+    composeLucy(imageData);
   }, [facingMode, stopCamera, composeLucy]);
 
   const downloadImage = useCallback(() => {
@@ -101,10 +91,26 @@ export default function SelfiePage() {
     a.click();
   }, [compositeImage]);
 
+  const handleFileUpload = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const imageData = ev.target?.result;
+      if (typeof imageData === 'string') {
+        setCapturedImage(imageData);
+        setProcessing(true);
+        composeLucy(imageData);
+      }
+    };
+    reader.readAsDataURL(file);
+  }, [composeLucy]);
+
   const reset = useCallback(() => {
     setCapturedImage(null);
     setCompositeImage(null);
     setProcessing(false);
+    setError(null);
   }, []);
 
   useEffect(() => {
@@ -199,8 +205,38 @@ export default function SelfiePage() {
             Lucy is joining your photo...
           </p>
           <p style={{ fontSize: '14px', marginTop: '10px', color: 'var(--text-muted)' }}>
-            AI compositing in progress
+            Generating with Gemini 3 Pro — can take 20–40 seconds
           </p>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && !processing && !compositeImage && (
+        <div className="flex-1 flex flex-col items-center justify-center text-center" style={{ padding: '0 32px' }}>
+          <AlertTriangle size={40} style={{ color: '#ef4444', marginBottom: '20px' }} />
+          <p style={{ fontSize: '17px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+            Couldn't generate selfie
+          </p>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '24px', maxWidth: '300px' }}>
+            {error}
+          </p>
+          <button
+            onClick={reset}
+            className="flex items-center font-semibold transition-transform active:scale-95"
+            style={{
+              gap: '8px',
+              padding: '12px 26px',
+              borderRadius: '999px',
+              fontSize: '14px',
+              background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
+              color: 'white',
+              border: 'none',
+              boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
+            }}
+          >
+            <RotateCcw size={16} />
+            Try again
+          </button>
         </div>
       )}
 
@@ -353,6 +389,52 @@ export default function SelfiePage() {
               <Camera size={18} />
               Start camera
             </button>
+
+            {/* File upload fallback */}
+            <div
+              style={{
+                marginTop: '20px',
+                padding: '16px 20px',
+                borderRadius: '14px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-card)',
+              }}
+            >
+              <label
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  or upload an image
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
+                <span
+                  style={{
+                    fontSize: '13px',
+                    color: 'var(--accent)',
+                    fontWeight: 500,
+                  }}
+                >
+                  Choose file
+                </span>
+              </label>
+            </div>
           </div>
 
           {/* Bottom disclaimer */}

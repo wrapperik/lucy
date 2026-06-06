@@ -1,3 +1,6 @@
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -5,6 +8,7 @@ import dotenv from 'dotenv';
 import entryRoutes from './routes/entries.js';
 import authRoutes from './routes/auth.js';
 import reactionRoutes from './routes/reactions.js';
+import selfieRoutes from './routes/selfie.js';
 
 dotenv.config();
 
@@ -19,6 +23,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api/entries', entryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/reactions', reactionRoutes);
+app.use('/api/selfie', selfieRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

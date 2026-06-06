@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { AltArrowLeftLinear, ClockCircleLinear, QrCodeLinear, CameraLinear, LockLinear, LockUnlockedLinear } from '@solar-icons/react-perf';
+import { AltArrowLeftLinear, ClockCircleLinear, QrCodeLinear, CameraLinear, LockLinear, LockUnlockedLinear, MapPointLinear } from '@solar-icons/react-perf';
 import EntryReactions from '../components/diary/EntryReactions';
 
 /**
@@ -299,6 +299,64 @@ export default function EntryDetailPage() {
             >
               <EntryReactions entryId={String(entry.id)} />
             </div>
+
+            {/* Where to find the next entry — director's breadcrumb */}
+            {entry.nextLocationHint && (
+              <div
+                className="animate-fade-in-up"
+                style={{
+                  animationDelay: '0.25s',
+                  animationFillMode: 'backwards',
+                  marginTop: '20px',
+                  padding: '22px 22px 24px',
+                  borderRadius: '20px',
+                  background:
+                    'linear-gradient(135deg, var(--accent-glow), var(--bg-card))',
+                  border: '1px solid var(--accent-glow-strong)',
+                  boxShadow: '0 8px 28px rgba(243, 129, 85, 0.10)',
+                }}
+              >
+                <div
+                  className="flex items-center"
+                  style={{ gap: '10px', marginBottom: '10px' }}
+                >
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '12px',
+                      background: 'var(--accent-glow-strong)',
+                      color: 'var(--accent)',
+                    }}
+                  >
+                    <MapPointLinear size={18} />
+                  </div>
+                  <p
+                    style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'var(--accent)',
+                      fontFamily: "'Space Mono', monospace",
+                    }}
+                  >
+                    Where to find the next entry
+                  </p>
+                </div>
+                <p
+                  style={{
+                    fontSize: '15px',
+                    lineHeight: 1.6,
+                    color: 'var(--text-primary)',
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {entry.nextLocationHint}
+                </p>
+              </div>
+            )}
           </>
         ) : (
           /* Locked state */
