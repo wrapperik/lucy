@@ -258,7 +258,7 @@ function QrCodeBlock({ entry, qrValue }) {
             color: 'white',
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(243, 129, 85, 0.20)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
           }}
         >
           <DownloadLinear size={14} />
@@ -319,8 +319,9 @@ function EntryCard({ entry, index, onChange, onDelete }) {
         style={{ marginBottom: '24px' }}
       >
         <h2
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             fontSize: '20px',
             fontWeight: 700,
             color: 'var(--text-primary)',
@@ -328,7 +329,7 @@ function EntryCard({ entry, index, onChange, onDelete }) {
         >
           {entry.day && entry.title
             ? `Day ${String(entry.day).padStart(2, '0')} — ${entry.title}`
-            : `New entry`}
+            : `New entry.`}
         </h2>
         <button
           onClick={() => onDelete(index)}
@@ -509,7 +510,7 @@ function EntryCard({ entry, index, onChange, onDelete }) {
                   color: 'white',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(243, 129, 85, 0.20)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                   flexShrink: 0,
                 }}
               >
@@ -778,15 +779,16 @@ export default function AdminPage() {
             DIRECTOR CONSOLE
           </p>
           <h1
+            className="font-serif"
             style={{
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: '26px',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '30px',
               fontWeight: 700,
               color: 'var(--text-primary)',
               lineHeight: 1.15,
             }}
           >
-            Lucy's diary entries
+            Lucy's diary entries.
           </h1>
         </div>
         <button
@@ -836,7 +838,7 @@ export default function AdminPage() {
             background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
             color: 'white',
             border: 'none',
-            boxShadow: '0 4px 14px rgba(243, 129, 85, 0.22)',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08)',
             cursor: isSaving ? 'wait' : 'pointer',
             opacity: isSaving ? 0.6 : 1,
           }}
@@ -908,7 +910,7 @@ export default function AdminPage() {
                 border: '1px solid ' + (isActive ? 'var(--accent)' : 'var(--border-card)'),
                 background: isActive ? 'var(--accent)' : 'var(--bg-card)',
                 color: isActive ? 'white' : 'var(--text-secondary)',
-                boxShadow: isActive ? '0 4px 12px rgba(243, 129, 85, 0.25)' : 'none',
+                boxShadow: isActive ? '0 4px 12px rgba(0, 0, 0, 0.08)' : 'none',
                 flexShrink: 0,
               }}
             >

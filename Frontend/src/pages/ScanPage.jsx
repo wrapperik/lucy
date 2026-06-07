@@ -119,16 +119,17 @@ export default function ScanPage() {
           QR SCANNER
         </p>
         <h1
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             color: 'var(--text-primary)',
-            fontSize: '28px',
+            fontSize: '32px',
             fontWeight: 700,
             lineHeight: 1.15,
             marginBottom: '8px',
           }}
         >
-          Scan to unlock
+          Scan to unlock.
         </h1>
         <p style={{ fontSize: '14px', lineHeight: 1.55, color: 'var(--text-secondary)' }}>
           Find Lucy's QR codes hidden at each location. Each one reveals the next chapter.
@@ -153,16 +154,17 @@ export default function ScanPage() {
               <QrCode size={44} style={{ color: 'var(--accent)' }} />
             </div>
             <p
+              className="font-serif"
               style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: '22px',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '24px',
                 fontWeight: 700,
                 color: 'var(--text-primary)',
                 lineHeight: 1.3,
                 marginBottom: '8px',
               }}
             >
-              Ready to scan
+              Ready to scan.
             </p>
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '28px', maxWidth: '260px' }}>
               Point your camera at a QR code to unlock the next diary entry.
@@ -178,7 +180,7 @@ export default function ScanPage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
+                boxShadow: '0 8px 28px rgba(0, 0, 0, 0.08)',
               }}
             >
               <ScanLine size={20} />
@@ -256,9 +258,10 @@ export default function ScanPage() {
                   <CheckCircle size={40} style={{ color: '#22c55e' }} />
                 </div>
                 <h2
+                  className="font-serif"
                   style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: '24px',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: '26px',
                     fontWeight: 700,
                     color: 'var(--text-primary)',
                     marginBottom: '8px',
@@ -289,15 +292,16 @@ export default function ScanPage() {
                   <XCircle size={40} style={{ color: '#ef4444' }} />
                 </div>
                 <h2
+                  className="font-serif"
                   style={{
-                    fontFamily: "'Outfit', sans-serif",
-                    fontSize: '24px',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontSize: '26px',
                     fontWeight: 700,
                     color: 'var(--text-primary)',
                     marginBottom: '8px',
                   }}
                 >
-                  Not recognised
+                  Not recognised.
                 </h2>
                 <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '28px' }}>
                   This QR code doesn't match any of Lucy's diary entries.
@@ -315,7 +319,7 @@ export default function ScanPage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
+                boxShadow: '0 8px 28px rgba(0, 0, 0, 0.08)',
               }}
             >
               <ScanLine size={18} />

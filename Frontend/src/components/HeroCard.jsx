@@ -108,13 +108,14 @@ export default function HeroCard() {
             marginBottom: '6px',
           }}
         >
-          A VIDEO DIARY
+          LUCY'S POCKET DIARY
         </p>
         <h1
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             color: 'var(--text-primary)',
-            fontSize: '28px',
+            fontSize: '32px',
             fontWeight: 700,
             lineHeight: 1.1,
           }}

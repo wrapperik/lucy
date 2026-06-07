@@ -5,7 +5,6 @@ import BottomNav from './components/BottomNav';
 import DiaryPage from './pages/DiaryPage';
 import SelfiePage from './pages/SelfiePage';
 import ScanPage from './pages/ScanPage';
-import PromptsPage from './pages/PromptsPage';
 import AdminPage from './pages/AdminPage';
 import SettingsPage from './pages/SettingsPage';
 import EntryDetailPage from './pages/EntryDetailPage';
@@ -30,7 +29,6 @@ function MainApp() {
           <Route path="/entry/:id" element={<EntryDetailPage />} />
           <Route path="/selfie" element={<SelfiePage />} />
           <Route path="/scan" element={<ScanPage />} />
-          <Route path="/prompts" element={<PromptsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/admin" element={isAdmin ? <AdminPage /> : <SettingsPage />} />
         </Routes>

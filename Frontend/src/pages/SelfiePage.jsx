@@ -172,7 +172,7 @@ export default function SelfiePage() {
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 border: '4px solid rgba(255,255,255,0.30)',
-                boxShadow: '0 4px 20px rgba(243, 129, 85, 0.3)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
               }}
             >
               <Camera size={26} className="text-white" />
@@ -201,7 +201,16 @@ export default function SelfiePage() {
       {processing && (
         <div className="flex-1 flex flex-col items-center justify-center text-center" style={{ padding: '0 32px' }}>
           <Sparkles size={44} className="animate-spin-slow" style={{ color: 'var(--accent)', marginBottom: '24px' }} />
-          <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.4 }}>
+          <p
+            className="font-serif"
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '20px',
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              lineHeight: 1.4
+            }}
+          >
             Lucy is joining your photo...
           </p>
           <p style={{ fontSize: '14px', marginTop: '10px', color: 'var(--text-muted)' }}>
@@ -231,7 +240,7 @@ export default function SelfiePage() {
               background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
               color: 'white',
               border: 'none',
-              boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
             }}
           >
             <RotateCcw size={16} />
@@ -266,7 +275,7 @@ export default function SelfiePage() {
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
                 border: 'none',
-                boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
               }}
             >
               <Download size={18} />
@@ -308,12 +317,11 @@ export default function SelfiePage() {
                   width: '96px',
                   height: '96px',
                   borderRadius: '28px',
-                  border: '2px solid var(--accent-glow-strong)',
-                  boxShadow: '0 8px 32px rgba(243, 129, 85, 0.15)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
                 }}
               >
                 <img
-                  src="/lucy-avatar.png"
+                  src="/sketched-logo.jpeg"
                   alt="Lucy"
                   className="w-full h-full object-cover"
                   style={{ opacity: 0.9 }}
@@ -349,13 +357,14 @@ export default function SelfiePage() {
               SELFIE WITH LUCY
             </p>
             <h2
+              className="font-serif"
               style={{
-                fontFamily: "'Outfit', sans-serif",
+                fontFamily: "'Playfair Display', Georgia, serif",
                 color: 'var(--text-primary)',
-                fontSize: '26px',
+                fontSize: '30px',
                 fontWeight: 700,
-                lineHeight: 1.3,
-                maxWidth: '280px',
+                lineHeight: 1.25,
+                maxWidth: '300px',
               }}
             >
               Take a selfie. Lucy<br />will quietly join you.
@@ -382,7 +391,7 @@ export default function SelfiePage() {
                 fontSize: '15px',
                 background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
-                boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
+                boxShadow: '0 8px 28px rgba(0, 0, 0, 0.08)',
                 border: 'none',
               }}
             >

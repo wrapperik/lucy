@@ -69,15 +69,16 @@ export default function SettingsPage() {
           YOUR ACCOUNT
         </p>
         <h1
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             color: 'var(--text-primary)',
-            fontSize: '30px',
+            fontSize: '32px',
             fontWeight: 700,
             lineHeight: 1.15,
           }}
         >
-          Settings
+          Settings.
         </h1>
       </div>
 
@@ -107,7 +108,7 @@ export default function SettingsPage() {
                 fontSize: '20px',
                 fontWeight: 700,
                 flexShrink: 0,
-                boxShadow: '0 4px 12px rgba(243, 129, 85, 0.25)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
               }}
             >
               {currentUser?.username ? currentUser.username[0].toUpperCase() : 'U'}
@@ -151,7 +152,7 @@ export default function SettingsPage() {
               padding: '20px',
               borderRadius: 'var(--radius-card)',
               border: '1px solid var(--accent-glow-strong)',
-              boxShadow: '0 8px 24px rgba(243, 129, 85, 0.08)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.03)',
               background: 'var(--accent-glow)',
               cursor: 'pointer',
               textAlign: 'left',
@@ -168,7 +169,7 @@ export default function SettingsPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                boxShadow: '0 4px 12px rgba(243, 129, 85, 0.25)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
               }}
             >
               <Widget3Linear size={20} style={{ color: 'white' }} />
@@ -198,12 +199,13 @@ export default function SettingsPage() {
           }}
         >
           <h3
+            className="font-serif"
             style={{
-              fontSize: '14px',
+              fontSize: '15px',
               fontWeight: 700,
               color: 'var(--text-primary)',
               marginBottom: '16px',
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "'Playfair Display', Georgia, serif",
             }}
           >
             Journey Statistics
@@ -303,12 +305,13 @@ export default function SettingsPage() {
           }}
         >
           <h3
+            className="font-serif"
             style={{
-              fontSize: '14px',
+              fontSize: '15px',
               fontWeight: 700,
               color: 'var(--text-primary)',
               marginBottom: '10px',
-              fontFamily: "'Outfit', sans-serif",
+              fontFamily: "'Playfair Display', Georgia, serif",
             }}
           >
             Reset Journey
@@ -406,9 +409,10 @@ export default function SettingsPage() {
             </div>
 
             <h3
+              className="font-serif"
               style={{
-                fontFamily: "'Outfit', sans-serif",
-                fontSize: '18px',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '20px',
                 fontWeight: 700,
                 color: 'var(--text-primary)',
                 marginBottom: '10px',
