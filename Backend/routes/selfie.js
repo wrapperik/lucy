@@ -2,7 +2,7 @@ import { Router } from 'express';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { VertexAI } from '@google-cloud/vertexai';
+import { GoogleGenAI } from '@google/genai';
 
 const router = Router();
 
@@ -29,15 +29,14 @@ Requirements:
 - Casual, candid, warm friendly mood. Slight smile or natural expression.
 - Output a single photorealistic image, no text overlays, no watermarks, no borders.`;
 
-function createVertexClient() {
-  const project = process.env.GOOGLE_PROJECT_ID;
-  const location = process.env.GOOGLE_LOCATION || 'us-central1';
+function createGenAIClient() {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = SERVICE_ACCOUNT_PATH;
 
-  // Use service account JSON if present, otherwise fall back to
-  // Application Default Credentials (gcloud auth / env var)
-  const keyFile = SERVICE_ACCOUNT_PATH;
-
-  return new VertexAI({ project, location, googleAuthOptions: { keyFile } });
+  return new GoogleGenAI({
+    vertexai: true,
+    project: process.env.GOOGLE_PROJECT_ID,
+    location: 'global',
+  });
 }
 
 /* ── POST /api/selfie/compose ──
@@ -59,12 +58,10 @@ router.post('/compose', async (req, res) => {
 
     const lucyB64 = await getLucyReference();
 
-    const vertexai = createVertexClient();
-    const model = vertexai.getGenerativeModel({
-      model: 'gemini-3.5-pro',
-    });
+    const ai = createGenAIClient();
 
-    const request = {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-image',
       contents: [
         {
           role: 'user',
@@ -75,13 +72,10 @@ router.post('/compose', async (req, res) => {
           ],
         },
       ],
-      generationConfig: {
+      config: {
         responseModalities: ['IMAGE'],
       },
-    };
-
-    const result = await model.generateContent(request);
-    const response = result.response;
+    });
 
     const imagePart = response.candidates?.[0]?.content?.parts?.find(
       (p) => p.inlineData?.data
