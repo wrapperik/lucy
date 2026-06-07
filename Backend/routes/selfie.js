@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
+import vision from '@google-cloud/vision';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ const PROMPT = `Create a hyper-realistic photograph showing the person from the 
 
 Requirements:
 - Preserve the exact facial features, hair, skin tone, and outfit of BOTH people from their reference photos. Do not alter identities.
+- Lucy must wear exactly the outfit shown in her reference photo. Do not adapt, change, or contextualise her clothing to match the user's setting, activity, or attire under any circumstances.
 - Lucy stands naturally next to the user, like a friend taking a selfie together. Shoulders touching or arms around each other is fine.
 - Match the lighting, color temperature, camera angle, depth of field, grain, and overall photographic quality of the user's selfie so the result looks like a single authentic photo.
 - Keep the user's original background; add Lucy realistically into the same scene.
@@ -37,6 +39,18 @@ function createGenAIClient() {
     project: process.env.GOOGLE_PROJECT_ID,
     location: 'global',
   });
+}
+
+const visionClient = new vision.ImageAnnotatorClient({ keyFilename: SERVICE_ACCOUNT_PATH });
+const EXPLICIT_LIKELIHOODS = new Set(['LIKELY', 'VERY_LIKELY']);
+
+async function isSafeImage(base64Data) {
+  const [result] = await visionClient.safeSearchDetection({
+    image: { content: base64Data },
+  });
+  const s = result.safeSearchAnnotation;
+  console.log('SafeSearch:', { adult: s.adult, violence: s.violence, racy: s.racy });
+  return !EXPLICIT_LIKELIHOODS.has(s.adult) && !EXPLICIT_LIKELIHOODS.has(s.violence);
 }
 
 /* ── POST /api/selfie/compose ──
@@ -57,6 +71,11 @@ router.post('/compose', async (req, res) => {
     const userB64 = match[2];
 
     const lucyB64 = await getLucyReference();
+
+    const safe = await isSafeImage(userB64);
+    if (!safe) {
+      return res.status(400).json({ error: 'Image contains inappropriate content.' });
+    }
 
     const ai = createGenAIClient();
 
