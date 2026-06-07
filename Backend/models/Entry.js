@@ -70,6 +70,10 @@ const entrySchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    isLastEntry: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

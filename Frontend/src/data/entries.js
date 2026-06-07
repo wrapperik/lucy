@@ -67,6 +67,7 @@ const entries = [
     recordedAt: 'RECORDED SUNDAY · 11:58 PM',
     thumbnail: '/lucy-vlog-thumb.png',
     videoUrl: null,
+    isLastEntry: true,
   },
 ];
 
