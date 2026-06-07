@@ -5,7 +5,7 @@ import { Camera, Download, RotateCcw, X, Sparkles, AlertTriangle } from 'lucide-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 export default function SelfiePage() {
-  const { saveSelfie } = useApp();
+  const { saveSelfie, currentUser } = useApp();
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState(null);
   const [processing, setProcessing] = useState(false);
@@ -51,7 +51,7 @@ export default function SelfiePage() {
       const res = await fetch(`${API_URL}/selfie/compose`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: selfieData }),
+        body: JSON.stringify({ image: selfieData, userId: currentUser?.id }),
       });
       const data = await res.json();
       if (!res.ok || !data.image) {
@@ -65,7 +65,7 @@ export default function SelfiePage() {
     } finally {
       setProcessing(false);
     }
-  }, [saveSelfie]);
+  }, [saveSelfie, currentUser]);
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;

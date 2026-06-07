@@ -4,8 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import vision from '@google-cloud/vision';
+import User from '../models/User.js';
 
 const router = Router();
+
+// Max selfies a single user may ever generate. Override with env if needed.
+const SELFIE_LIMIT = Number(process.env.SELFIE_LIMIT) || 5;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,9 +63,12 @@ async function isSafeImage(base64Data) {
    Returns: { image: "data:image/png;base64,..." } */
 router.post('/compose', async (req, res) => {
   try {
-    const { image } = req.body || {};
+    const { image, userId } = req.body || {};
     if (!image || typeof image !== 'string') {
       return res.status(400).json({ error: 'Missing image data.' });
+    }
+    if (!userId) {
+      return res.status(401).json({ error: 'Please log in to create a selfie.' });
     }
 
     const match = image.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
@@ -70,6 +77,17 @@ router.post('/compose', async (req, res) => {
     }
     const userMime = match[1];
     const userB64 = match[2];
+
+    // Enforce per-user lifetime quota before any paid API calls.
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    if (user.selfieCount >= SELFIE_LIMIT) {
+      return res.status(429).json({
+        error: `You've used all ${SELFIE_LIMIT} of your selfies with Lucy.`,
+      });
+    }
 
     const lucyB64 = await getLucyReference();
 
@@ -109,9 +127,16 @@ router.post('/compose', async (req, res) => {
       });
     }
 
+    // Count only successful generations against the user's quota.
+    user.selfieCount += 1;
+    await user.save();
+
     const outMime = imagePart.inlineData.mimeType || 'image/png';
     const outData = imagePart.inlineData.data;
-    res.json({ image: `data:${outMime};base64,${outData}` });
+    res.json({
+      image: `data:${outMime};base64,${outData}`,
+      selfiesRemaining: Math.max(0, SELFIE_LIMIT - user.selfieCount),
+    });
   } catch (err) {
     console.error('Selfie compose error:', err);
     res.status(500).json({ error: err.message || 'Selfie generation failed.' });

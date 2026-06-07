@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    selfieCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

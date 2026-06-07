@@ -25,6 +25,7 @@ export default function ScanPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null); // { success, entry }
+  const [scanError, setScanError] = useState(null);
   const scannerRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -47,6 +48,7 @@ export default function ScanPage() {
 
   const startScanner = async () => {
     setResult(null);
+    setScanError(null);
     try {
       const scanner = new Html5Qrcode('qr-reader');
       scannerRef.current = scanner;
@@ -72,6 +74,10 @@ export default function ScanPage() {
       setScanning(true);
     } catch (err) {
       console.error('Scanner error:', err);
+      const denied = err?.name === 'NotAllowedError' || err?.message?.includes('Permission');
+      setScanError(denied
+        ? 'Camera permission denied. Allow camera access in your browser settings and try again.'
+        : 'Could not start the camera. Make sure no other app is using it.');
     }
   };
 
@@ -186,6 +192,11 @@ export default function ScanPage() {
               <ScanLine size={20} />
               Open scanner
             </button>
+            {scanError && (
+              <p style={{ marginTop: '16px', fontSize: '13px', color: '#ef4444', maxWidth: '280px', textAlign: 'center' }}>
+                {scanError}
+              </p>
+            )}
           </div>
         )}
 
