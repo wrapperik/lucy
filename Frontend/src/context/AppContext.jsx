@@ -153,6 +153,12 @@ export function AppProvider({ children }) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Total AI generation count (never decreases on delete)
+  const [selfieCount, setSelfieCount] = useState(() => {
+    const saved = localStorage.getItem('lucy-selfie-count');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
   const [selfieGenerating, setSelfieGenerating] = useState(false);
   const [selfieCapturedImage, setSelfieCapturedImage] = useState(null);
   const [selfieResultImage, setSelfieResultImage] = useState(null);
@@ -293,15 +299,15 @@ export function AppProvider({ children }) {
   };
 
   // Sync selfies list to server
-  const syncSelfiesWithServer = async (userId, selfiesList) => {
+  // Pass count only when a new selfie was generated (to increment the cap).
+  const syncSelfiesWithServer = async (userId, selfiesList, count) => {
     try {
+      const body = { userId, selfies: selfiesList };
+      if (typeof count === 'number') body.selfieCount = count;
       const res = await fetch(`${API_URL}/auth/sync-selfies`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          selfies: selfiesList
-        })
+        body: JSON.stringify(body)
       });
       if (res.ok) {
         const data = await res.json();
@@ -343,18 +349,25 @@ export function AppProvider({ children }) {
       // 2. Upload composite to Cloudinary
       const cloudinaryUrl = await uploadSelfieToCloudinary(compositeB64);
 
-      // 3. Update selfies list state
+      // 3. Update selfies list state and increment generation count
       const newSelfie = {
         id: String(Date.now()),
         url: cloudinaryUrl,
         timestamp: new Date().toISOString()
       };
 
+      setSelfieCount(prev => {
+        const newCount = prev + 1;
+        localStorage.setItem('lucy-selfie-count', String(newCount));
+        return newCount;
+      });
+
       setSelfies(prev => {
         const updatedSelfies = [...prev, newSelfie];
         localStorage.setItem('lucy-selfies', JSON.stringify(updatedSelfies));
-        // Async sync to DB
-        syncSelfiesWithServer(currentUser.id, updatedSelfies);
+        // Async sync to DB — pass the new count so the server records it
+        const newCount = parseInt(localStorage.getItem('lucy-selfie-count') || '0', 10);
+        syncSelfiesWithServer(currentUser.id, updatedSelfies, newCount);
         return updatedSelfies;
       });
 
@@ -367,13 +380,14 @@ export function AppProvider({ children }) {
     }
   }, [currentUser]);
 
-  // Delete a selfie
+  // Delete a selfie (does NOT reduce selfieCount — cap is for AI generations)
   const deleteSelfie = useCallback(async (selfieId) => {
     const idToDelete = String(selfieId);
     setSelfies(prev => {
       const updatedSelfies = prev.filter(s => String(s.id) !== idToDelete);
       localStorage.setItem('lucy-selfies', JSON.stringify(updatedSelfies));
       if (currentUser?.id) {
+        // Don't pass selfieCount — server keeps existing count
         syncSelfiesWithServer(currentUser.id, updatedSelfies);
       }
       return updatedSelfies;
@@ -430,6 +444,8 @@ export function AppProvider({ children }) {
         setSelfies([]);
         localStorage.removeItem('lucy-selfies');
       }
+      setSelfieCount(data.selfieCount || 0);
+      localStorage.setItem('lucy-selfie-count', String(data.selfieCount || 0));
       return { success: true };
     } catch {
       return { success: false, error: 'Cannot connect to authentication server' };
@@ -462,6 +478,8 @@ export function AppProvider({ children }) {
         setSelfies([]);
         localStorage.removeItem('lucy-selfies');
       }
+      setSelfieCount(data.selfieCount || 0);
+      localStorage.setItem('lucy-selfie-count', String(data.selfieCount || 0));
       return { success: true };
     } catch {
       return { success: false, error: 'Cannot connect to authentication server' };
@@ -474,7 +492,9 @@ export function AppProvider({ children }) {
     localStorage.removeItem('lucy-user');
     localStorage.removeItem('lucy-admin');
     localStorage.removeItem('lucy-selfies');
+    localStorage.removeItem('lucy-selfie-count');
     setSelfies([]);
+    setSelfieCount(0);
     setIsAdmin(false);
     resetSelfieGenState();
     // Keep local unlocks or reset to defaults
@@ -508,6 +528,7 @@ export function AppProvider({ children }) {
     scannedCodes,
     isAdmin,
     selfies,
+    selfieCount,
     generateSelfie,
     deleteSelfie,
     selfieGenerating,

@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 export default function SelfiePage() {
   const {
     selfies,
+    selfieCount,
     generateSelfie,
     deleteSelfie,
     selfieGenerating,
@@ -17,6 +18,7 @@ export default function SelfiePage() {
 
   const [cameraActive, setCameraActive] = useState(false);
   const [facingMode, setFacingMode] = useState('user');
+  const [showInfoPopup, setShowInfoPopup] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -216,6 +218,24 @@ export default function SelfiePage() {
       {/* Composite result */}
       {selfieResultImage && !selfieGenerating && (
         <div className="flex-1 flex flex-col animate-fade-in-up" style={{ padding: '20px 16px 0' }}>
+          {/* Back button */}
+          <button
+            onClick={reset}
+            className="flex items-center font-medium transition-transform active:scale-95"
+            style={{
+              gap: '6px',
+              marginBottom: '12px',
+              padding: '0',
+              fontSize: '14px',
+              color: 'var(--text-secondary)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to camera
+          </button>
           <div
             className="overflow-hidden"
             style={{
@@ -351,26 +371,84 @@ export default function SelfiePage() {
             <div
               style={{
                 marginTop: '20px',
-                fontSize: '11px',
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                color: selfies.length >= 5 ? '#ef4444' : 'var(--text-secondary)',
-                fontFamily: "'Space Mono', monospace",
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '6px 14px',
-                borderRadius: '99px',
-                background: 'var(--bg-card-inner)',
-                border: '1px solid var(--border-card)',
+                position: 'relative',
               }}
             >
-              <span>{selfies.length} / 5 SELFIES USED</span>
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  color: selfieCount >= 5 ? '#ef4444' : 'var(--text-secondary)',
+                  fontFamily: "'Space Mono', monospace",
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 14px',
+                  borderRadius: '99px',
+                  background: 'var(--bg-card-inner)',
+                  border: '1px solid var(--border-card)',
+                }}
+              >
+                <span>{selfieCount} / 5 SELFIES USED</span>
+              </div>
+              <button
+                onClick={() => setShowInfoPopup(prev => !prev)}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: 'var(--bg-card-inner)',
+                  border: '1px solid var(--border-card)',
+                  color: 'var(--text-muted)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontFamily: "'Space Mono', monospace",
+                }}
+                aria-label="Selfie limit info"
+              >
+                ?
+              </button>
+
+              {/* Info popup */}
+              {showInfoPopup && (
+                <div
+                  className="animate-fade-in-up"
+                  style={{
+                    position: 'absolute',
+                    bottom: 'calc(100% + 10px)',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: '14px',
+                    padding: '14px 18px',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+                    width: '260px',
+                    zIndex: 10,
+                  }}
+                >
+                  <p style={{ fontSize: '13px', lineHeight: 1.5, color: 'var(--text-primary)', margin: 0, fontWeight: 600 }}>
+                    Each user gets 5 AI-generated selfies with Lucy.
+                  </p>
+                  <p style={{ fontSize: '12px', lineHeight: 1.45, color: 'var(--text-muted)', margin: '6px 0 0', }}>
+                    This limit is for AI generation — deleting a selfie from your memories won't give back a slot.
+                  </p>
+                </div>
+              )}
             </div>
 
             <button
               onClick={startCamera}
-              disabled={selfies.length >= 5}
+              disabled={selfieCount >= 5}
               className="flex items-center font-semibold transition-transform active:scale-95"
               style={{
                 gap: '10px',
@@ -378,21 +456,21 @@ export default function SelfiePage() {
                 padding: '14px 36px',
                 borderRadius: '999px',
                 fontSize: '15px',
-                background: selfies.length >= 5
+                background: selfieCount >= 5
                   ? 'var(--text-muted)'
                   : 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                 color: 'white',
-                boxShadow: selfies.length >= 5 ? 'none' : '0 8px 28px rgba(0, 0, 0, 0.08)',
+                boxShadow: selfieCount >= 5 ? 'none' : '0 8px 28px rgba(0, 0, 0, 0.08)',
                 border: 'none',
-                cursor: selfies.length >= 5 ? 'not-allowed' : 'pointer',
-                opacity: selfies.length >= 5 ? 0.6 : 1,
+                cursor: selfieCount >= 5 ? 'not-allowed' : 'pointer',
+                opacity: selfieCount >= 5 ? 0.6 : 1,
               }}
             >
               <Camera size={18} />
               Start camera
             </button>
 
-            {selfies.length >= 5 && (
+            {selfieCount >= 5 && (
               <p
                 style={{
                   fontSize: '12px',
@@ -402,7 +480,7 @@ export default function SelfiePage() {
                   lineHeight: 1.4,
                 }}
               >
-                Selfie limit reached. Delete an existing selfie from your memories below to take another.
+                Selfie limit reached. You've used all 5 of your AI-generated selfies.
               </p>
             )}
           </div>

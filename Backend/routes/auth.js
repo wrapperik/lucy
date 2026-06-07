@@ -122,7 +122,7 @@ router.post('/sync-unlocked', async (req, res) => {
 /* ── POST /api/auth/sync-selfies ── */
 router.post('/sync-selfies', async (req, res) => {
   try {
-    const { userId, selfies } = req.body;
+    const { userId, selfies, selfieCount } = req.body;
 
     if (!userId || !Array.isArray(selfies)) {
       return res.status(400).json({ error: 'Invalid selfies sync request' });
@@ -134,7 +134,11 @@ router.post('/sync-selfies', async (req, res) => {
     }
 
     user.selfies = selfies;
-    user.selfieCount = selfies.length;
+    // Only update selfieCount when explicitly provided (i.e. after a new generation).
+    // Deletions should NOT decrease the cap counter.
+    if (typeof selfieCount === 'number') {
+      user.selfieCount = selfieCount;
+    }
     await user.save();
 
     res.json({ selfies: user.selfies, selfieCount: user.selfieCount });
