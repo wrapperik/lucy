@@ -46,11 +46,15 @@ function createGenAIClient() {
   });
 }
 
-const visionClient = new vision.ImageAnnotatorClient({ keyFilename: SERVICE_ACCOUNT_PATH });
+let visionClient = null;
+function getVisionClient() {
+  if (!visionClient) visionClient = new vision.ImageAnnotatorClient({ keyFilename: SERVICE_ACCOUNT_PATH });
+  return visionClient;
+}
 const EXPLICIT_LIKELIHOODS = new Set(['LIKELY', 'VERY_LIKELY']);
 
 async function isSafeImage(base64Data) {
-  const [result] = await visionClient.safeSearchDetection({
+  const [result] = await getVisionClient().safeSearchDetection({
     image: { content: base64Data },
   });
   const s = result.safeSearchAnnotation;
