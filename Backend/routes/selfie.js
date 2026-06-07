@@ -10,7 +10,8 @@ const router = Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const LUCY_REF_PATH = path.join(__dirname, '..', 'assets', 'lucy-reference.png');
-const SERVICE_ACCOUNT_PATH = path.join(__dirname, '..', 'service-account.json');
+const SERVICE_ACCOUNT_PATH =
+  process.env.SERVICE_ACCOUNT_PATH || path.join(__dirname, '..', 'service-account.json');
 
 let lucyRefCache = null;
 async function getLucyReference() {
