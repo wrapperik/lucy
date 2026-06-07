@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { LockLinear, LetterLinear, UserLinear, StarsLinear, CheckCircleLinear, ShieldWarningLinear, AltArrowRightLinear, Book2Linear } from '@solar-icons/react-perf';
+import { LockLinear, LetterLinear, UserLinear, StarsLinear, CheckCircleLinear, ShieldWarningLinear, AltArrowRightLinear } from '@solar-icons/react-perf';
 
 export default function AuthScreen() {
   const { registerUser, loginUser } = useApp();
@@ -93,24 +93,6 @@ export default function AuthScreen() {
           alignItems: 'center',
         }}
       >
-        {/* App Logo Emblem */}
-        <div
-          style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '18px',
-            border: '1px solid var(--accent-glow-strong)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'var(--accent-glow)',
-            marginBottom: '18px',
-          }}
-          className="animate-float"
-        >
-            <Book2Linear size={24} style={{ color: 'var(--accent)' }} />
-        </div>
-
         {/* Title */}
         <h2
           className="font-serif"

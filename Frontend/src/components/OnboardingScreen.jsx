@@ -71,43 +71,6 @@ export default function OnboardingScreen() {
           boxSizing: 'border-box',
         }}
       >
-        {/* Top bar */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: isShortScreen ? '20px' : '40px',
-            flexShrink: 0,
-          }}
-        >
-          {/* L/D Brand Mark */}
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              border: '1px solid var(--text-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '11px',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-            }}
-          >
-            L/D
-          </div>
-
-          {/* Minimal 3-line Menu Icon */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ width: '18px', height: '1.5px', backgroundColor: 'var(--text-primary)' }} />
-            <div style={{ width: '18px', height: '1.5px', backgroundColor: 'var(--text-primary)' }} />
-            <div style={{ width: '18px', height: '1.5px', backgroundColor: 'var(--text-primary)' }} />
-          </div>
-        </div>
-
         {/* Illustration Container */}
         <div
           style={{
