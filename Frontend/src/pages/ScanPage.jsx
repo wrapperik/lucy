@@ -200,55 +200,51 @@ export default function ScanPage() {
           </div>
         )}
 
-        {/* Active scanner */}
-        {scanning && (
-          <div className="w-full flex flex-col items-center">
+        {/* Scanner container — always in DOM so Html5Qrcode can find the element */}
+        <div className="w-full flex flex-col items-center" style={{ display: scanning ? 'flex' : 'none' }}>
+          <div
+            className="relative w-full overflow-hidden"
+            style={{
+              borderRadius: '20px',
+              border: '1px solid var(--border-card)',
+              maxWidth: '340px',
+              aspectRatio: '1',
+            }}
+          >
+            <div id="qr-reader" ref={containerRef} style={{ width: '100%' }} />
             <div
-              className="relative w-full overflow-hidden"
-              style={{
-                borderRadius: '20px',
-                border: '1px solid var(--border-card)',
-                maxWidth: '340px',
-                aspectRatio: '1',
-              }}
+              className="absolute inset-0 pointer-events-none"
+              style={{ border: '3px solid transparent' }}
             >
-              <div id="qr-reader" ref={containerRef} style={{ width: '100%' }} />
-              {/* Scanning overlay corners */}
               <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ border: '3px solid transparent' }}
-              >
-                {/* Animated scan line */}
-                <div
-                  className="absolute left-4 right-4"
-                  style={{
-                    height: '2px',
-                    background: 'linear-gradient(90deg, transparent, var(--accent), transparent)',
-                    animation: 'scanLine 2s ease-in-out infinite',
-                    top: '50%',
-                  }}
-                />
-              </div>
+                className="absolute left-4 right-4"
+                style={{
+                  height: '2px',
+                  background: 'linear-gradient(90deg, transparent, var(--accent), transparent)',
+                  animation: 'scanLine 2s ease-in-out infinite',
+                  top: '50%',
+                }}
+              />
             </div>
-            <button
-              onClick={stopScanner}
-              className="flex items-center font-medium transition-transform active:scale-95"
-              style={{
-                gap: '8px',
-                marginTop: '20px',
-                padding: '12px 24px',
-                borderRadius: '14px',
-                fontSize: '14px',
-                background: 'var(--bg-card)',
-                color: 'var(--text-secondary)',
-                border: '1px solid var(--border-card)',
-              }}
-            >
-              <X size={16} />
-              Cancel
-            </button>
           </div>
-        )}
+          <button
+            onClick={stopScanner}
+            className="flex items-center font-medium transition-transform active:scale-95"
+            style={{
+              gap: '8px',
+              marginTop: '20px',
+              padding: '12px 24px',
+              borderRadius: '14px',
+              fontSize: '14px',
+              background: 'var(--bg-card)',
+              color: 'var(--text-secondary)',
+              border: '1px solid var(--border-card)',
+            }}
+          >
+            <X size={16} />
+            Cancel
+          </button>
+        </div>
 
         {/* Result */}
         {result && (
