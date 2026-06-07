@@ -113,15 +113,16 @@ export default function AuthScreen() {
 
         {/* Title */}
         <h2
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             color: 'var(--text-primary)',
-            fontSize: '24px',
+            fontSize: '28px',
             fontWeight: 700,
             marginBottom: '6px',
           }}
         >
-          {isSignUp ? 'Create your profile' : 'Welcome to Lucy'}
+          {isSignUp ? 'Create your profile.' : 'Welcome to Lucy.'}
         </h2>
 
         <p
@@ -162,7 +163,7 @@ export default function AuthScreen() {
                   cursor: 'pointer',
                   background: role === 'user' ? 'linear-gradient(135deg, var(--accent-light), var(--accent))' : 'transparent',
                   color: role === 'user' ? 'white' : 'var(--text-secondary)',
-                  boxShadow: role === 'user' ? '0 2px 8px rgba(243, 129, 85, 0.2)' : 'none',
+                  boxShadow: role === 'user' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
                   transition: 'all 0.2s ease',
                 }}
               >
@@ -181,7 +182,7 @@ export default function AuthScreen() {
                   cursor: 'pointer',
                   background: role === 'admin' ? 'linear-gradient(135deg, var(--accent-light), var(--accent))' : 'transparent',
                   color: role === 'admin' ? 'white' : 'var(--text-secondary)',
-                  boxShadow: role === 'admin' ? '0 2px 8px rgba(243, 129, 85, 0.2)' : 'none',
+                  boxShadow: role === 'admin' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
                   transition: 'all 0.2s ease',
                 }}
               >
@@ -344,7 +345,7 @@ export default function AuthScreen() {
               background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
               color: 'white',
               border: 'none',
-              boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
               cursor: loading || success ? 'wait' : 'pointer',
               marginTop: '8px',
             }}

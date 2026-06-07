@@ -1,45 +1,14 @@
 import HeroCard from '../components/HeroCard';
 import DiaryEntry from '../components/DiaryEntry';
 import { useApp } from '../context/AppContext';
-import { StarsLinear, WiFiRouterRoundLinear } from '@solar-icons/react-perf';
+import { StarsLinear } from '@solar-icons/react-perf';
 
 export default function DiaryPage() {
-  const { entries, entriesLoading, usingBackend } = useApp();
+  const { entries, entriesLoading } = useApp();
 
   return (
     <div id="diary-page" className="pb-safe">
       <HeroCard />
-
-      {/* Connection status badge */}
-      <div className="flex items-center justify-center" style={{ marginTop: '16px' }}>
-        <div
-          className="flex items-center"
-          style={{
-            gap: '6px',
-            padding: '6px 14px',
-            borderRadius: '999px',
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.08em',
-            fontFamily: "'Space Mono', monospace",
-            background: usingBackend ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)',
-            color: usingBackend ? '#22c55e' : '#ef4444',
-            border: `1px solid ${usingBackend ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)'}`,
-          }}
-        >
-          {usingBackend ? (
-            <>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' }} />
-              LIVE · MongoDB Atlas
-            </>
-          ) : (
-            <>
-              <WiFiRouterRoundLinear size={12} />
-              OFFLINE · Static data
-            </>
-          )}
-        </div>
-      </div>
 
       {/* Loading state */}
       {entriesLoading && entries.length === 0 && (

@@ -129,12 +129,13 @@ export default function DiaryEntry({ entry, index }) {
 
         {/* Title (Line Clamped) */}
         <h3
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             color: 'var(--text-primary)',
             fontSize: '18px',
             fontWeight: 700,
-            lineHeight: 1.35,
+            lineHeight: 1.3,
             margin: '2px 0',
             overflow: 'hidden',
             display: '-webkit-box',

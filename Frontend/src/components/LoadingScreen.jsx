@@ -33,35 +33,22 @@ export default function LoadingScreen() {
             width: '90px',
             height: '90px',
             borderRadius: '28px',
-            border: '2px solid var(--accent-glow-strong)',
-            padding: '4px',
-            marginBottom: '28px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 32px rgba(243, 129, 85, 0.15)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+            marginBottom: '28px',
           }}
         >
           <img
-            src="/lucy-avatar.png"
+            src="/sketched-logo.jpeg"
             alt="Lucy"
             style={{
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              borderRadius: '22px',
+              borderRadius: '28px',
             }}
-          />
-          {/* Pulsing ring around avatar */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: '-6px',
-              borderRadius: '34px',
-              border: '1.5px solid var(--accent)',
-              opacity: 0.5,
-            }}
-            className="animate-pulse-glow"
           />
         </div>
 

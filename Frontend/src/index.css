@@ -4,17 +4,17 @@
 /* ===== Design Tokens (Premium Light Mode) ===== */
 :root {
   /* Background layers */
-  --bg-app: #F5F6F8;
+  --bg-app: #FFFFFF;
   --bg-card: #FFFFFF;
   --bg-card-elevated: #FFFFFF;
-  --bg-card-inner: #ECEFF1;
+  --bg-card-inner: #F3F4F6;
   
-  /* Accent - warm coral/terracotta */
-  --accent: #F38155;
-  --accent-light: #F7A380;
-  --accent-dark: #D65E30;
-  --accent-glow: rgba(243, 129, 85, 0.08);
-  --accent-glow-strong: rgba(243, 129, 85, 0.18);
+  /* Accent - high-contrast charcoal/black */
+  --accent: #1A1A1A;
+  --accent-light: #333333;
+  --accent-dark: #000000;
+  --accent-glow: rgba(0, 0, 0, 0.03);
+  --accent-glow-strong: rgba(0, 0, 0, 0.07);
   
   /* Text */
   --text-primary: #1A1A1A;
@@ -23,15 +23,15 @@
   --text-accent: var(--accent);
   
   /* Borders */
-  --border-subtle: rgba(0, 0, 0, 0.03);
-  --border-card: rgba(0, 0, 0, 0.04);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-card: rgba(0, 0, 0, 0.06);
   
   /* Misc */
-  --radius-card: 28px;
-  --radius-inner: 20px;
+  --radius-card: 20px;
+  --radius-inner: 14px;
   --radius-pill: 999px;
   --nav-height: 80px;
-  --card-shadow: 0 16px 40px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.02);
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01);
 }
 
 /* ===== Reset & Base ===== */
@@ -60,7 +60,7 @@ body {
 
 /* Global override to force Poppins everywhere, including inline fontFamily React styles */
 body, input, textarea, select, button, div, span, p, h1, h2, h3, h4, h5, h6, a {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Poppins', sans-serif;
 }
 
 #root {
@@ -74,11 +74,11 @@ body, input, textarea, select, button, div, span, p, h1, h2, h3, h4, h5, h6, a {
 
 /* ===== Typography ===== */
 .font-mono {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Space Mono', monospace;
 }
 
 .font-serif {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Playfair Display', Georgia, serif;
 }
 
 /* ===== Scrollbar ===== */
@@ -89,27 +89,11 @@ body, input, textarea, select, button, div, span, p, h1, h2, h3, h4, h5, h6, a {
 
 /* ===== Warm peach/coral corner glow effect ===== */
 .corner-glow::before {
-  content: '';
-  position: fixed;
-  top: -150px;
-  left: -150px;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(243, 129, 85, 0.07) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 .corner-glow::after {
-  content: '';
-  position: fixed;
-  top: -100px;
-  right: -100px;
-  width: 350px;
-  height: 350px;
-  background: radial-gradient(circle, rgba(243, 129, 85, 0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 /* ===== Animations ===== */
@@ -301,7 +285,7 @@ input:focus, textarea:focus, select:focus {
 .reaction-btn.active {
   background: var(--accent-glow);
   border-color: var(--accent);
-  box-shadow: 0 2px 12px rgba(243, 129, 85, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .reaction-btn.animate-pop .reaction-emoji {

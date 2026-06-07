@@ -146,11 +146,12 @@ export default function EntryDetailPage() {
 
         {/* Title */}
         <h1
+          className="font-serif"
           style={{
-            fontFamily: "'Outfit', sans-serif",
+            fontFamily: "'Playfair Display', Georgia, serif",
             color: 'var(--text-primary)',
-            fontSize: '30px',
-            fontWeight: 800,
+            fontSize: '32px',
+            fontWeight: 700,
             lineHeight: 1.15,
             marginBottom: '14px',
           }}
@@ -290,7 +291,7 @@ export default function EntryDetailPage() {
                   background:
                     'linear-gradient(135deg, var(--accent-glow), var(--bg-card))',
                   border: '1px solid var(--accent-glow-strong)',
-                  boxShadow: '0 8px 28px rgba(243, 129, 85, 0.10)',
+                  boxShadow: '0 8px 28px rgba(0, 0, 0, 0.04)',
                 }}
               >
                 <div
@@ -400,7 +401,7 @@ export default function EntryDetailPage() {
                   background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
                   color: 'white',
                   border: 'none',
-                  boxShadow: '0 4px 16px rgba(243, 129, 85, 0.25)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
                   cursor: 'pointer',
                 }}
               >

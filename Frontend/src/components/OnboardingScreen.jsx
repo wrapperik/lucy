@@ -1,22 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { AltArrowRightLinear, QrCodeLinear, StarsLinear, Book2Linear } from '@solar-icons/react-perf';
+import { AltArrowRightLinear } from '@solar-icons/react-perf';
 
 const STEPS = [
   {
-    title: "A Hidden Story",
+    title: "A Hidden Story.",
     description: "Lucy left behind a pocket video diary. She documented her walks, her favourite spots, and her secrets. But she didn't make it easy to find.",
-    icon: <Book2Linear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
+    image: "/onboarding-diary.png",
   },
   {
-    title: "Interact & Unlock",
+    title: "Interact & Unlock.",
     description: "To reveal the next days of her diary, you must complete challenges. Scan QR codes at her routes, photograph the sky, or wait as the timer runs down.",
-    icon: <QrCodeLinear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
+    image: "/onboarding-unlock.png",
   },
   {
-    title: "Selfie with Lucy",
+    title: "Selfie with Lucy.",
     description: "Visit her locations and take a selfie. Lucy will gently join your photos — documenting that you were there too.",
-    icon: <StarsLinear style={{ width: '100%', height: '100%', color: 'var(--accent)' }} />,
+    image: "/onboarding-selfie.png",
   },
 ];
 
@@ -50,7 +50,7 @@ export default function OnboardingScreen() {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'var(--bg-app)',
+        backgroundColor: '#FFFFFF',
         zIndex: 9990,
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch',
@@ -63,200 +63,161 @@ export default function OnboardingScreen() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
           minHeight: '100%',
           width: '100%',
           maxWidth: '480px',
           margin: '0 auto',
-          padding: isShortScreen ? '24px 20px 32px' : '40px 24px 60px',
+          padding: isShortScreen ? '24px 20px 32px' : '40px 24px 48px',
           boxSizing: 'border-box',
-          gap: '24px',
         }}
       >
-        {/* Top logo */}
+        {/* Top bar */}
         <div
           style={{
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             alignItems: 'center',
-            flexShrink: 0
+            marginBottom: isShortScreen ? '20px' : '40px',
+            flexShrink: 0,
           }}
         >
+          {/* L/D Brand Mark */}
           <div
             style={{
-              width: isShortScreen ? '36px' : '48px',
-              height: isShortScreen ? '36px' : '48px',
-              borderRadius: '12px',
-              border: '1px solid var(--accent-glow-strong)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              border: '1px solid var(--text-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'var(--accent-glow)',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '11px',
+              fontWeight: 700,
+              color: 'var(--text-primary)',
             }}
           >
-            <Book2Linear size={isShortScreen ? 16 : 20} style={{ color: 'var(--accent)' }} />
+            L/D
+          </div>
+
+          {/* Minimal 3-line Menu Icon */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ width: '18px', height: '1.5px', backgroundColor: 'var(--text-primary)' }} />
+            <div style={{ width: '18px', height: '1.5px', backgroundColor: 'var(--text-primary)' }} />
+            <div style={{ width: '18px', height: '1.5px', backgroundColor: 'var(--text-primary)' }} />
           </div>
         </div>
 
-        {/* Main Card container */}
+        {/* Illustration Container */}
         <div
           style={{
             flex: '1 1 auto',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '100%',
+            marginBottom: isShortScreen ? '24px' : '40px',
           }}
         >
-          <div
-            key={currentStep}
-            className="animate-fade-in-up"
+          <img
+            src={activeStep.image}
+            alt={activeStep.title}
             style={{
-              background: 'transparent',
-              border: 'none',
-              padding: isShortScreen ? '12px 10px' : '20px 12px',
-              boxShadow: 'none',
-              width: '100%',
-              maxWidth: '360px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              boxSizing: 'border-box',
+              maxHeight: isShortScreen ? '220px' : '300px',
+              maxWidth: '100%',
+              objectFit: 'contain',
             }}
-          >
-            {/* Step Icon */}
-            <div
-              style={{
-                width: isShortScreen ? '56px' : '76px',
-                height: isShortScreen ? '56px' : '76px',
-                borderRadius: '50%',
-                background: 'var(--accent-glow)',
-                border: '1px solid var(--accent-glow-strong)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: isShortScreen ? '14px' : '20px',
-                marginBottom: isShortScreen ? '16px' : '28px',
-                boxSizing: 'border-box',
-              }}
-              className="animate-float"
-            >
-              {activeStep.icon}
-            </div>
-
-            {/* Brand label */}
-            <p
-              style={{
-                fontSize: '9px',
-                fontWeight: 700,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--accent)',
-                fontFamily: "'Space Mono', monospace",
-                marginBottom: isShortScreen ? '6px' : '8px',
-                margin: 0,
-              }}
-            >
-              CHAPTER {currentStep + 1} OF 3
-            </p>
-
-            {/* Title */}
-            <h2
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                color: 'var(--text-primary)',
-                fontSize: isShortScreen ? '20px' : '24px',
-                fontWeight: 700,
-                marginBottom: isShortScreen ? '10px' : '14px',
-                lineHeight: 1.25,
-                marginTop: '4px',
-              }}
-            >
-              {activeStep.title}
-            </h2>
-
-            {/* Description */}
-            <p
-              style={{
-                fontSize: isShortScreen ? '12.5px' : '13.5px',
-                lineHeight: 1.6,
-                color: 'var(--text-secondary)',
-                margin: 0,
-                textAlign: 'center',
-              }}
-            >
-              {activeStep.description}
-            </p>
-          </div>
+            className="animate-fade-in-up"
+          />
         </div>
 
-        {/* Bottom controls */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: isShortScreen ? '16px' : '24px',
-            width: '100%',
-            maxWidth: '360px',
-            margin: '0 auto',
-            flexShrink: 0,
-          }}
-        >
-          {/* Steps indicator dots */}
-          <div style={{ display: 'flex', gap: '8px' }}>
+        {/* Text and Actions */}
+        <div style={{ flexShrink: 0 }}>
+          {/* Title */}
+          <h2
+            className="font-serif"
+            style={{
+              color: 'var(--text-primary)',
+              fontSize: isShortScreen ? '28px' : '34px',
+              fontWeight: 700,
+              lineHeight: 1.15,
+              marginBottom: '12px',
+              textAlign: 'left',
+            }}
+          >
+            {activeStep.title}
+          </h2>
+
+          {/* Description */}
+          <p
+            style={{
+              fontSize: '13.5px',
+              lineHeight: 1.6,
+              color: 'var(--text-secondary)',
+              marginBottom: isShortScreen ? '24px' : '36px',
+              textAlign: 'left',
+              maxWidth: '95%',
+            }}
+          >
+            {activeStep.description}
+          </p>
+
+          {/* Progress Indicators */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
             {STEPS.map((_, i) => (
               <div
                 key={i}
                 style={{
-                  width: i === currentStep ? '24px' : '8px',
-                  height: '8px',
-                  borderRadius: '99px',
-                  background: i === currentStep ? 'var(--accent)' : 'var(--text-muted)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: i === currentStep ? 'var(--text-primary)' : 'rgba(0, 0, 0, 0.15)',
+                  transition: 'all 0.3s ease',
                 }}
               />
             ))}
           </div>
 
-          {/* Action Button */}
-          <button
-            onClick={handleNext}
-            className="flex items-center justify-center font-semibold transition-transform active:scale-95 w-full"
+          {/* Thin Divider Line */}
+          <div
             style={{
-              gap: '8px',
-              padding: isShortScreen ? '14px' : '16px',
-              borderRadius: '16px',
-              fontSize: '15px',
-              background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))',
-              color: 'white',
-              border: 'none',
-              boxShadow: '0 8px 28px rgba(243, 129, 85, 0.25)',
-              cursor: 'pointer',
-              boxSizing: 'border-box',
+              width: '100%',
+              height: '1px',
+              backgroundColor: 'rgba(0, 0, 0, 0.08)',
+              marginBottom: '12px',
             }}
-          >
-            {currentStep === STEPS.length - 1 ? "Start exploring" : "Continue"}
-            <AltArrowRightLinear size={16} />
-          </button>
+          />
 
-          {/* Skip button */}
-          {currentStep < STEPS.length - 1 && (
-            <button
-              onClick={completeOnboarding}
+          {/* Bottom Next Step Row */}
+          <div
+            onClick={handleNext}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              cursor: 'pointer',
+              padding: '8px 0 12px',
+            }}
+            className="group"
+          >
+            <span
+              className="font-serif"
               style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '13px',
-                fontWeight: 500,
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                padding: '4px',
+                fontSize: '17px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
               }}
             >
-              Skip walkthrough
-            </button>
-          )}
+              {currentStep === STEPS.length - 1 ? "Start exploring." : STEPS[currentStep + 1].title}
+            </span>
+            <AltArrowRightLinear
+              size={18}
+              style={{
+                color: 'var(--text-primary)',
+                transition: 'transform 0.2s ease',
+              }}
+              className="group-hover:translate-x-1"
+            />
+          </div>
         </div>
       </div>
     </div>
