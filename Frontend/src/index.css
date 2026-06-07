@@ -185,15 +185,25 @@ input:focus, textarea:focus, select:focus {
 /* Hide html5-qrcode's built-in UI */
 #qr-reader {
   border: none !important;
-}
-
-#qr-reader video {
-  border-radius: 16px !important;
-  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 #qr-reader__scan_region {
-  min-height: 280px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+}
+
+#qr-reader video {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 18px !important;
+  object-fit: cover !important;
 }
 
 #qr-reader__dashboard,

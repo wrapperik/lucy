@@ -55,7 +55,6 @@ export default function ScanPage() {
         { facingMode: 'environment' },
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
           aspectRatio: 1.0,
         },
         (decodedText) => {
@@ -202,21 +201,88 @@ export default function ScanPage() {
               }}
             >
               <div id="qr-reader" ref={containerRef} style={{ width: '100%' }} />
-              {/* Scanning overlay corners */}
+              
+              {/* Custom Centered Viewfinder Scan Box Overlay */}
               <div
-                className="absolute inset-0 pointer-events-none"
-                style={{ border: '3px solid transparent' }}
+                className="absolute inset-0 pointer-events-none flex items-center justify-center"
+                style={{ zIndex: 5 }}
               >
-                {/* Animated scan line */}
+                {/* 240px wide cutout box (approx 70% of 340px max) */}
                 <div
-                  className="absolute left-4 right-4"
                   style={{
-                    height: '2px',
-                    background: 'linear-gradient(90deg, transparent, var(--accent), transparent)',
-                    animation: 'scanLine 2s ease-in-out infinite',
-                    top: '50%',
+                    width: '70%',
+                    height: '70%',
+                    position: 'relative',
+                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.4)', // Draws outer shaded area
+                    borderRadius: '16px',
                   }}
-                />
+                >
+                  {/* Top-Left Corner */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '24px',
+                      height: '24px',
+                      borderTop: '4px solid #FFFFFF',
+                      borderLeft: '4px solid #FFFFFF',
+                      borderTopLeftRadius: '8px',
+                    }}
+                  />
+                  {/* Top-Right Corner */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '24px',
+                      height: '24px',
+                      borderTop: '4px solid #FFFFFF',
+                      borderRight: '4px solid #FFFFFF',
+                      borderTopRightRadius: '8px',
+                    }}
+                  />
+                  {/* Bottom-Left Corner */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      width: '24px',
+                      height: '24px',
+                      borderBottom: '4px solid #FFFFFF',
+                      borderLeft: '4px solid #FFFFFF',
+                      borderBottomLeftRadius: '8px',
+                    }}
+                  />
+                  {/* Bottom-Right Corner */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      width: '24px',
+                      height: '24px',
+                      borderBottom: '4px solid #FFFFFF',
+                      borderRight: '4px solid #FFFFFF',
+                      borderBottomRightRadius: '8px',
+                    }}
+                  />
+
+                  {/* Animated scan line inside the box */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '8px',
+                      right: '8px',
+                      height: '2px',
+                      background: 'linear-gradient(90deg, transparent, #FFFFFF, transparent)',
+                      animation: 'scanLine 2.5s ease-in-out infinite',
+                      top: '50%',
+                    }}
+                  />
+                </div>
               </div>
             </div>
             <button
