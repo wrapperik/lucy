@@ -1,20 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
-import { LockLinear, LogoutLinear, AddCircleLinear, DisketteLinear, RestartLinear, TrashBinTrashLinear, CheckCircleLinear, ShieldWarningLinear, StarsLinear, DownloadLinear, PrinterLinear, CopyLinear } from '@solar-icons/react-perf';
-import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
-import {
-  AddCircleLinear,
-  DisketteLinear,
-  RestartLinear,
-  TrashBinTrashLinear,
-  CheckCircleLinear,
-  ShieldWarningLinear,
-  StarsLinear,
-  AltArrowLeftLinear
-} from '@solar-icons/react-perf';
+import { LockLinear, LogoutLinear, AddCircleLinear, DisketteLinear, RestartLinear, TrashBinTrashLinear, CheckCircleLinear, ShieldWarningLinear, StarsLinear, DownloadLinear, PrinterLinear, CopyLinear, AltArrowLeftLinear } from '@solar-icons/react-perf';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 

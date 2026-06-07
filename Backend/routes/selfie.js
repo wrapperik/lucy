@@ -61,7 +61,7 @@ router.post('/compose', async (req, res) => {
 
     const vertexai = createVertexClient();
     const model = vertexai.getGenerativeModel({
-      model: 'gemini-3-pro-image',
+      model: 'gemini-3.5-pro',
     });
 
     const request = {
