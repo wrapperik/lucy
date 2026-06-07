@@ -52,6 +52,19 @@ export default function ScanPage() {
     setScanning(true); // show container first so Html5Qrcode can measure it
   };
 
+  async function stopScanner() {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current.clear();
+      } catch {
+        // ignore cleanup errors
+      }
+      scannerRef.current = null;
+    }
+    setScanning(false);
+  }
+
   // Start the actual camera once the container is visible
   useEffect(() => {
     if (!scanning) return;
@@ -86,20 +99,9 @@ export default function ScanPage() {
 
     init();
     return () => { cancelled = true; };
-  }, [scanning]);
+  }, [scanning, tryQrUnlock]);
 
-  const stopScanner = async () => {
-    if (scannerRef.current) {
-      try {
-        await scannerRef.current.stop();
-        scannerRef.current.clear();
-      } catch {
-        // ignore cleanup errors
-      }
-      scannerRef.current = null;
-    }
-    setScanning(false);
-  };
+
 
   // Cleanup on unmount
   useEffect(() => {

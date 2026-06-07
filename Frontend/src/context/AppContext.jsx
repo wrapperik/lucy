@@ -153,6 +153,11 @@ export function AppProvider({ children }) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [selfieGenerating, setSelfieGenerating] = useState(false);
+  const [selfieCapturedImage, setSelfieCapturedImage] = useState(null);
+  const [selfieResultImage, setSelfieResultImage] = useState(null);
+  const [selfieError, setSelfieError] = useState(null);
+
   // Scanned QR codes history
   const [scannedCodes, setScannedCodes] = useState(() => {
     const saved = localStorage.getItem('lucy-scanned');
@@ -246,12 +251,134 @@ export function AppProvider({ children }) {
     return { success: false, entry: null };
   }, [entries, unlockEntry]);
 
-  // Save selfie
-  const saveSelfie = useCallback((imageData) => {
-    const newSelfies = [...selfies, { id: Date.now(), image: imageData, timestamp: new Date().toISOString() }];
-    setSelfies(newSelfies);
-    localStorage.setItem('lucy-selfies', JSON.stringify(newSelfies));
-  }, [selfies]);
+  // Reset selfie generation state
+  const resetSelfieGenState = useCallback(() => {
+    setSelfieCapturedImage(null);
+    setSelfieResultImage(null);
+    setSelfieError(null);
+    setSelfieGenerating(false);
+  }, []);
+
+  // Upload image to Cloudinary (using unsigned preset)
+  const uploadSelfieToCloudinary = async (base64Image) => {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !preset || cloudName === 'your_cloud_name' || preset === 'your_unsigned_preset') {
+      console.warn('Cloudinary not configured for selfies, using local base64 fallback.');
+      return base64Image;
+    }
+
+    const formData = new FormData();
+    formData.append('file', base64Image);
+    formData.append('upload_preset', preset);
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error?.message || 'Cloudinary upload failed');
+      }
+
+      const data = await res.json();
+      return data.secure_url || base64Image;
+    } catch (err) {
+      console.error('Cloudinary selfie upload error:', err);
+      return base64Image;
+    }
+  };
+
+  // Sync selfies list to server
+  const syncSelfiesWithServer = async (userId, selfiesList) => {
+    try {
+      const res = await fetch(`${API_URL}/auth/sync-selfies`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          selfies: selfiesList
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.selfies || selfiesList;
+      }
+    } catch (e) {
+      console.warn('Could not sync selfies with server:', e);
+    }
+    return selfiesList;
+  };
+
+  // Generate a selfie
+  const generateSelfie = useCallback(async (capturedBase64) => {
+    if (!currentUser?.id) {
+      setSelfieError('Please log in to create a selfie.');
+      return;
+    }
+
+    setSelfieGenerating(true);
+    setSelfieCapturedImage(capturedBase64);
+    setSelfieResultImage(null);
+    setSelfieError(null);
+
+    try {
+      // 1. Compose selfie with Lucy on backend
+      const res = await fetch(`${API_URL}/selfie/compose`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: capturedBase64, userId: currentUser.id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Selfie generation failed.');
+      }
+
+      const compositeB64 = data.image;
+
+      // 2. Upload composite to Cloudinary
+      const cloudinaryUrl = await uploadSelfieToCloudinary(compositeB64);
+
+      // 3. Update selfies list state
+      const newSelfie = {
+        id: String(Date.now()),
+        url: cloudinaryUrl,
+        timestamp: new Date().toISOString()
+      };
+
+      setSelfies(prev => {
+        const updatedSelfies = [...prev, newSelfie];
+        localStorage.setItem('lucy-selfies', JSON.stringify(updatedSelfies));
+        // Async sync to DB
+        syncSelfiesWithServer(currentUser.id, updatedSelfies);
+        return updatedSelfies;
+      });
+
+      setSelfieResultImage(cloudinaryUrl);
+    } catch (err) {
+      console.error('generateSelfie error:', err);
+      setSelfieError(err.message || 'Could not generate selfie.');
+    } finally {
+      setSelfieGenerating(false);
+    }
+  }, [currentUser]);
+
+  // Delete a selfie
+  const deleteSelfie = useCallback(async (selfieId) => {
+    const idToDelete = String(selfieId);
+    setSelfies(prev => {
+      const updatedSelfies = prev.filter(s => String(s.id) !== idToDelete);
+      localStorage.setItem('lucy-selfies', JSON.stringify(updatedSelfies));
+      if (currentUser?.id) {
+        syncSelfiesWithServer(currentUser.id, updatedSelfies);
+      }
+      return updatedSelfies;
+    });
+  }, [currentUser]);
 
   // Complete onboarding
   const completeOnboarding = useCallback(() => {
@@ -296,6 +423,13 @@ export function AppProvider({ children }) {
       if (data.unlockedEntries && data.unlockedEntries.length > 0) {
         setUnlockedEntries(prev => [...new Set([...prev, ...data.unlockedEntries.map(String)])]);
       }
+      if (data.selfies) {
+        setSelfies(data.selfies);
+        localStorage.setItem('lucy-selfies', JSON.stringify(data.selfies));
+      } else {
+        setSelfies([]);
+        localStorage.removeItem('lucy-selfies');
+      }
       return { success: true };
     } catch {
       return { success: false, error: 'Cannot connect to authentication server' };
@@ -321,6 +455,13 @@ export function AppProvider({ children }) {
       if (data.unlockedEntries && data.unlockedEntries.length > 0) {
         setUnlockedEntries(prev => [...new Set([...prev, ...data.unlockedEntries.map(String)])]);
       }
+      if (data.selfies) {
+        setSelfies(data.selfies);
+        localStorage.setItem('lucy-selfies', JSON.stringify(data.selfies));
+      } else {
+        setSelfies([]);
+        localStorage.removeItem('lucy-selfies');
+      }
       return { success: true };
     } catch {
       return { success: false, error: 'Cannot connect to authentication server' };
@@ -332,12 +473,15 @@ export function AppProvider({ children }) {
     setCurrentUser(null);
     localStorage.removeItem('lucy-user');
     localStorage.removeItem('lucy-admin');
+    localStorage.removeItem('lucy-selfies');
+    setSelfies([]);
     setIsAdmin(false);
+    resetSelfieGenState();
     // Keep local unlocks or reset to defaults
     const defaults = staticEntries.filter(e => e.lockType === 'none').map(e => String(e.id));
     setUnlockedEntries(defaults);
     localStorage.setItem('lucy-unlocked', JSON.stringify(defaults));
-  }, []);
+  }, [resetSelfieGenState]);
 
   const value = {
     appLoading,
@@ -364,7 +508,13 @@ export function AppProvider({ children }) {
     scannedCodes,
     isAdmin,
     selfies,
-    saveSelfie,
+    generateSelfie,
+    deleteSelfie,
+    selfieGenerating,
+    selfieCapturedImage,
+    selfieResultImage,
+    selfieError,
+    resetSelfieGenState,
   };
 
   return (

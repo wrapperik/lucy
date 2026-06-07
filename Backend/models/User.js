@@ -36,6 +36,14 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    selfies: {
+      type: [{
+        id: String,
+        url: String,
+        timestamp: String,
+      }],
+      default: [],
+    },
   },
   {
     timestamps: true,

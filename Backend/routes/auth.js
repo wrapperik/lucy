@@ -46,6 +46,8 @@ router.post('/register', async (req, res) => {
       role: user.role,
       avatar: user.avatar,
       unlockedEntries: user.unlockedEntries,
+      selfies: user.selfies || [],
+      selfieCount: user.selfieCount || 0,
     };
 
     res.status(201).json(userResponse);
@@ -82,6 +84,8 @@ router.post('/login', async (req, res) => {
       role: user.role,
       avatar: user.avatar,
       unlockedEntries: user.unlockedEntries,
+      selfies: user.selfies || [],
+      selfieCount: user.selfieCount || 0,
     };
 
     res.json(userResponse);
@@ -110,6 +114,30 @@ router.post('/sync-unlocked', async (req, res) => {
     await user.save();
 
     res.json({ unlockedEntries: user.unlockedEntries });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ── POST /api/auth/sync-selfies ── */
+router.post('/sync-selfies', async (req, res) => {
+  try {
+    const { userId, selfies } = req.body;
+
+    if (!userId || !Array.isArray(selfies)) {
+      return res.status(400).json({ error: 'Invalid selfies sync request' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.selfies = selfies;
+    user.selfieCount = selfies.length;
+    await user.save();
+
+    res.json({ selfies: user.selfies, selfieCount: user.selfieCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
