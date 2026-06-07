@@ -307,8 +307,50 @@ function QrCodeBlock({ entry, qrValue }) {
 
 /* ── Entry Card Component ── */
 function EntryCard({ entry, index, onChange, onDelete }) {
+  const [uploading, setUploading] = useState(false);
+
   const handleChange = (field, value) => {
     onChange(index, { ...entry, [field]: value });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+    const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !preset || cloudName === 'your_cloud_name' || preset === 'your_unsigned_preset') {
+      alert('Please configure VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your Frontend/.env file.');
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', preset);
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error?.message || 'Upload failed');
+      }
+
+      const data = await res.json();
+      if (data.secure_url) {
+        handleChange('posterUrl', data.secure_url);
+      }
+    } catch (err) {
+      console.error('Cloudinary upload error:', err);
+      alert(`Cloudinary Upload Error: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -400,13 +442,49 @@ function EntryCard({ entry, index, onChange, onDelete }) {
       {/* Poster Image URL */}
       <div style={styles.fieldGroup}>
         <label style={styles.label}>Poster Image URL</label>
-        <input
-          type="text"
-          value={entry.posterUrl}
-          onChange={(e) => handleChange('posterUrl', e.target.value)}
-          placeholder="/assets/lucy-portrait.jpg"
-          style={styles.input}
-        />
+        <div className="flex" style={{ gap: '10px', alignItems: 'center' }}>
+          <input
+            type="text"
+            value={entry.posterUrl}
+            onChange={(e) => handleChange('posterUrl', e.target.value)}
+            placeholder="/assets/lucy-portrait.jpg"
+            style={{ ...styles.input, flex: 1 }}
+          />
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className="flex items-center justify-center font-semibold transition-transform active:scale-95"
+              style={{
+                padding: '12px 18px',
+                borderRadius: '14px',
+                fontSize: '13px',
+                background: 'var(--accent)',
+                color: 'white',
+                border: 'none',
+                cursor: uploading ? 'wait' : 'pointer',
+                opacity: uploading ? 0.7 : 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {uploading ? 'Uploading...' : 'Upload Image'}
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploading}
+              onChange={handleImageUpload}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: uploading ? 'wait' : 'pointer',
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Duration + Recorded row */}
@@ -736,6 +814,7 @@ export default function AdminPage() {
             qrCode: e.qrCode || '',
             cameraPrompt: e.cameraPrompt || '',
             lockDuration: e.lockDuration || 5,
+            nextLocationHint: e.nextLocationHint || '',
           }))
         );
         setToast({ message: 'All entries saved to cloud!', type: 'success' });
