@@ -31,6 +31,7 @@ function mapBackendEntry(e) {
     cameraPrompt: e.cameraPrompt || '',
     lockDuration: (e.lockDuration || 5) * 60 * 1000,
     nextLocationHint: e.nextLocationHint || '',
+    isLastEntry: !!e.isLastEntry,
   };
 }
 

@@ -28,6 +28,7 @@ const DEFAULT_ENTRY = {
   lockDuration: 5,
   // Free-text breadcrumb pointing players to the NEXT entry's IRL location
   nextLocationHint: '',
+  isLastEntry: false,
 };
 
 /* ── Inline styles ── */
@@ -656,6 +657,64 @@ function EntryCard({ entry, index, onChange, onDelete }) {
           style={{ ...styles.textarea, minHeight: '90px' }}
         />
       </div>
+
+      {/* Last Entry Toggle */}
+      <div
+        style={{
+          marginTop: '18px',
+          padding: '18px 20px',
+          borderRadius: '16px',
+          background: 'var(--bg-card-inner)',
+          border: '1px solid var(--border-card)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ flex: 1, paddingRight: '12px' }}>
+          <label style={{ ...styles.label, marginBottom: '4px' }}>Last Diary Entry</label>
+          <p
+            style={{
+              fontSize: '12.5px',
+              color: 'var(--text-muted)',
+              lineHeight: 1.4,
+              margin: 0,
+            }}
+          >
+            Ticking this marks this entry as the end of the experience and reveals a credits button for the player.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => handleChange('isLastEntry', !entry.isLastEntry)}
+          style={{
+            width: '52px',
+            height: '30px',
+            borderRadius: '15px',
+            background: entry.isLastEntry ? 'var(--accent)' : 'rgba(0,0,0,0.08)',
+            border: 'none',
+            position: 'relative',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s ease',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <span
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: 'white',
+              position: 'absolute',
+              left: entry.isLastEntry ? '25px' : '3px',
+              transition: 'left 0.2s ease',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+            }}
+          />
+        </button>
+      </div>
     </div>
   );
 }
@@ -734,6 +793,7 @@ export default function AdminPage() {
               cameraPrompt: e.cameraPrompt || '',
               lockDuration: e.lockDuration || 5,
               nextLocationHint: e.nextLocationHint || '',
+              isLastEntry: e.isLastEntry || false,
             }))
           );
           setActiveEntryIndex(0);
@@ -815,6 +875,7 @@ export default function AdminPage() {
             cameraPrompt: e.cameraPrompt || '',
             lockDuration: e.lockDuration || 5,
             nextLocationHint: e.nextLocationHint || '',
+            isLastEntry: e.isLastEntry || false,
           }))
         );
         setToast({ message: 'All entries saved to cloud!', type: 'success' });
