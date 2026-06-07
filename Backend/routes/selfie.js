@@ -3,13 +3,19 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
+import vision from '@google-cloud/vision';
+import User from '../models/User.js';
 
 const router = Router();
+
+// Max selfies a single user may ever generate. Override with env if needed.
+const SELFIE_LIMIT = Number(process.env.SELFIE_LIMIT) || 5;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const LUCY_REF_PATH = path.join(__dirname, '..', 'assets', 'lucy-reference.png');
-const SERVICE_ACCOUNT_PATH = path.join(__dirname, '..', 'service-account.json');
+const SERVICE_ACCOUNT_PATH =
+  process.env.SERVICE_ACCOUNT_PATH || path.join(__dirname, '..', 'service-account.json');
 
 let lucyRefCache = null;
 async function getLucyReference() {
@@ -23,6 +29,7 @@ const PROMPT = `Create a hyper-realistic photograph showing the person from the 
 
 Requirements:
 - Preserve the exact facial features, hair, skin tone, and outfit of BOTH people from their reference photos. Do not alter identities.
+- Lucy must wear exactly the outfit shown in her reference photo. Do not adapt, change, or contextualise her clothing to match the user's setting, activity, or attire under any circumstances.
 - Lucy stands naturally next to the user, like a friend taking a selfie together. Shoulders touching or arms around each other is fine.
 - Match the lighting, color temperature, camera angle, depth of field, grain, and overall photographic quality of the user's selfie so the result looks like a single authentic photo.
 - Keep the user's original background; add Lucy realistically into the same scene.
@@ -39,14 +46,33 @@ function createGenAIClient() {
   });
 }
 
+let visionClient = null;
+function getVisionClient() {
+  if (!visionClient) visionClient = new vision.ImageAnnotatorClient({ keyFilename: SERVICE_ACCOUNT_PATH });
+  return visionClient;
+}
+const EXPLICIT_LIKELIHOODS = new Set(['LIKELY', 'VERY_LIKELY']);
+
+async function isSafeImage(base64Data) {
+  const [result] = await getVisionClient().safeSearchDetection({
+    image: { content: base64Data },
+  });
+  const s = result.safeSearchAnnotation;
+  console.log('SafeSearch:', { adult: s.adult, violence: s.violence, racy: s.racy });
+  return !EXPLICIT_LIKELIHOODS.has(s.adult) && !EXPLICIT_LIKELIHOODS.has(s.violence);
+}
+
 /* ── POST /api/selfie/compose ──
    Body: { image: "data:image/jpeg;base64,..." }
    Returns: { image: "data:image/png;base64,..." } */
 router.post('/compose', async (req, res) => {
   try {
-    const { image } = req.body || {};
+    const { image, userId } = req.body || {};
     if (!image || typeof image !== 'string') {
       return res.status(400).json({ error: 'Missing image data.' });
+    }
+    if (!userId) {
+      return res.status(401).json({ error: 'Please log in to create a selfie.' });
     }
 
     const match = image.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
@@ -56,7 +82,23 @@ router.post('/compose', async (req, res) => {
     const userMime = match[1];
     const userB64 = match[2];
 
+    // Enforce per-user lifetime quota before any paid API calls.
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    if (user.selfieCount >= SELFIE_LIMIT) {
+      return res.status(429).json({
+        error: `You've used all ${SELFIE_LIMIT} of your selfies with Lucy.`,
+      });
+    }
+
     const lucyB64 = await getLucyReference();
+
+    const safe = await isSafeImage(userB64);
+    if (!safe) {
+      return res.status(400).json({ error: 'Image contains inappropriate content.' });
+    }
 
     const ai = createGenAIClient();
 
@@ -89,9 +131,16 @@ router.post('/compose', async (req, res) => {
       });
     }
 
+    // Count only successful generations against the user's quota.
+    user.selfieCount += 1;
+    await user.save();
+
     const outMime = imagePart.inlineData.mimeType || 'image/png';
     const outData = imagePart.inlineData.data;
-    res.json({ image: `data:${outMime};base64,${outData}` });
+    res.json({
+      image: `data:${outMime};base64,${outData}`,
+      selfiesRemaining: Math.max(0, SELFIE_LIMIT - user.selfieCount),
+    });
   } catch (err) {
     console.error('Selfie compose error:', err);
     res.status(500).json({ error: err.message || 'Selfie generation failed.' });

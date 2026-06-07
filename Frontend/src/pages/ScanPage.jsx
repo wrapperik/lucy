@@ -25,6 +25,7 @@ export default function ScanPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState(null); // { success, entry }
+  const [scanError, setScanError] = useState(null);
   const scannerRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -45,34 +46,47 @@ export default function ScanPage() {
     return () => { cancelled = true; };
   }, [searchParams, entries, tryQrUnlock, setSearchParams]);
 
-  const startScanner = async () => {
+  const startScanner = () => {
     setResult(null);
-    try {
-      const scanner = new Html5Qrcode('qr-reader');
-      scannerRef.current = scanner;
-
-      await scanner.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          aspectRatio: 1.0,
-        },
-        (decodedText) => {
-          // QR code successfully scanned — strip wrapping URL if present
-          const code = extractCode(decodedText);
-          const unlockResult = tryQrUnlock(code);
-          setResult(unlockResult);
-          stopScanner();
-        },
-        () => {
-          // scan failure - ignore, keep scanning
-        }
-      );
-      setScanning(true);
-    } catch (err) {
-      console.error('Scanner error:', err);
-    }
+    setScanError(null);
+    setScanning(true); // show container first so Html5Qrcode can measure it
   };
+
+  // Start the actual camera once the container is visible
+  useEffect(() => {
+    if (!scanning) return;
+    let cancelled = false;
+
+    const init = async () => {
+      try {
+        const scanner = new Html5Qrcode('qr-reader');
+        if (cancelled) return;
+        scannerRef.current = scanner;
+        await scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+          (decodedText) => {
+            const code = extractCode(decodedText);
+            const unlockResult = tryQrUnlock(code);
+            setResult(unlockResult);
+            stopScanner();
+          },
+          () => {}
+        );
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Scanner error:', err);
+        setScanning(false);
+        const denied = err?.name === 'NotAllowedError' || err?.message?.includes('Permission');
+        setScanError(denied
+          ? 'Camera permission denied. Allow camera access in your browser settings and try again.'
+          : 'Could not start the camera. Make sure no other app is using it.');
+      }
+    };
+
+    init();
+    return () => { cancelled = true; };
+  }, [scanning]);
 
   const stopScanner = async () => {
     if (scannerRef.current) {
@@ -185,6 +199,11 @@ export default function ScanPage() {
               <ScanLine size={20} />
               Open scanner
             </button>
+            {scanError && (
+              <p style={{ marginTop: '16px', fontSize: '13px', color: '#ef4444', maxWidth: '280px', textAlign: 'center' }}>
+                {scanError}
+              </p>
+            )}
           </div>
         )}
 
