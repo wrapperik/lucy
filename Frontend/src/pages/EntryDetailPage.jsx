@@ -29,6 +29,13 @@ const lockIcons = {
   camera: CameraLinear,
 };
 
+const CREDITS = [
+  { role: 'Directed by', names: ['Joané de Vos'] },
+  { role: 'Starring', names: ['Danielle Koch'], note: 'as Lucy' },
+  { role: 'Production Assistant', names: ['Leila Roos'] },
+  { role: 'Developers', names: ['Rikus Pretorius', 'Victor Du Preez'] },
+];
+
 export default function EntryDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -37,38 +44,51 @@ export default function EntryDetailPage() {
   const [timeLeft, setTimeLeft] = useState(null);
   const [showCredits, setShowCredits] = useState(false);
   const creditsRef = useRef(null);
-  const scrollIntervalRef = useRef(null);
+  const autoScrollRafRef = useRef(null);
 
   useEffect(() => {
-    if (showCredits) {
-      const delayTimeout = setTimeout(() => {
-        if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
-        
-        scrollIntervalRef.current = setInterval(() => {
-          if (creditsRef.current) {
-            const container = creditsRef.current;
-            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 1) {
-              clearInterval(scrollIntervalRef.current);
-            } else {
-              container.scrollTop += 0.8;
-            }
-          }
-        }, 16);
-      }, 1500);
+    if (!showCredits) return;
 
-      return () => {
-        clearTimeout(delayTimeout);
-        if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
-      };
-    } else {
-      if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
-    }
+    // Time-based rAF roll: sub-pixel position is accumulated here because
+    // browsers round scrollTop, and frame rate varies across devices.
+    const SCROLL_SPEED = 45; // px per second
+    let position = null;
+    let lastTime = null;
+
+    const step = (time) => {
+      const container = creditsRef.current;
+      if (!container) return;
+      if (lastTime === null) {
+        lastTime = time;
+        position = container.scrollTop;
+      }
+      position += (SCROLL_SPEED * (time - lastTime)) / 1000;
+      lastTime = time;
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      if (position >= maxScroll) {
+        container.scrollTop = maxScroll;
+        autoScrollRafRef.current = null;
+        return;
+      }
+      container.scrollTop = position;
+      autoScrollRafRef.current = requestAnimationFrame(step);
+    };
+
+    const delayTimeout = setTimeout(() => {
+      autoScrollRafRef.current = requestAnimationFrame(step);
+    }, 600);
+
+    return () => {
+      clearTimeout(delayTimeout);
+      if (autoScrollRafRef.current) cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
+    };
   }, [showCredits]);
 
   const handleUserScroll = () => {
-    if (scrollIntervalRef.current) {
-      clearInterval(scrollIntervalRef.current);
-      scrollIntervalRef.current = null;
+    if (autoScrollRafRef.current) {
+      cancelAnimationFrame(autoScrollRafRef.current);
+      autoScrollRafRef.current = null;
     }
   };
 
@@ -526,7 +546,7 @@ export default function EntryDetailPage() {
           <div
             style={{
               position: 'absolute',
-              top: '20px',
+              top: 'calc(20px + env(safe-area-inset-top))',
               left: '20px',
               right: '20px',
               display: 'flex',
@@ -571,16 +591,18 @@ export default function EntryDetailPage() {
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '60px 24px 120px',
+              padding: '60px 24px calc(120px + env(safe-area-inset-bottom))',
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              scrollBehavior: 'smooth',
+              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
             }}
           >
-            {/* Top spacing to start the scroll effect */}
-            <div style={{ minHeight: '60vh' }} />
+            {/* Full-screen lead-in so the roll starts from a black screen */}
+            <div style={{ height: '100vh', flexShrink: 0 }} />
 
             {/* Sketched Logo */}
             <img
@@ -623,125 +645,48 @@ export default function EntryDetailPage() {
 
             {/* Credit Blocks */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '44px', width: '100%', maxWidth: '480px' }}>
-              <div>
-                <p
-                  style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    color: '#666',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Written & Directed by
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: '22px',
-                    fontWeight: 700,
-                  }}
-                >
-                  Rikus Pretorius.
-                </h3>
-              </div>
-
-              <div>
-                <p
-                  style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    color: '#666',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Starring
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: '22px',
-                    fontWeight: 700,
-                  }}
-                >
-                  Lucy.
-                </h3>
-              </div>
-
-              <div>
-                <p
-                  style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    color: '#666',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Production Design
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: '20px',
-                    fontWeight: 700,
-                  }}
-                >
-                  The Diary Archive.
-                </h3>
-              </div>
-
-              <div>
-                <p
-                  style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    color: '#666',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Technical Architecture
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: '20px',
-                    fontWeight: 700,
-                  }}
-                >
-                  Antigravity AI.
-                </h3>
-              </div>
-
-              <div>
-                <p
-                  style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.2em',
-                    color: '#666',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px',
-                  }}
-                >
-                  Soundtrack
-                </p>
-                <h3
-                  style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontSize: '18px',
-                    fontWeight: 700,
-                  }}
-                >
-                  Urban Echoes & Silence.
-                </h3>
-              </div>
+              {CREDITS.map(({ role, names, note }) => (
+                <div key={role}>
+                  <p
+                    style={{
+                      fontFamily: "'Space Mono', monospace",
+                      fontSize: '10px',
+                      letterSpacing: '0.2em',
+                      color: '#666',
+                      textTransform: 'uppercase',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    {role}
+                  </p>
+                  {names.map((name) => (
+                    <h3
+                      key={name}
+                      style={{
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: '22px',
+                        fontWeight: 700,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {name}.
+                    </h3>
+                  ))}
+                  {note && (
+                    <p
+                      style={{
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontSize: '14px',
+                        fontStyle: 'italic',
+                        color: '#888',
+                        marginTop: '4px',
+                      }}
+                    >
+                      {note}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
 
             {/* Separator */}
